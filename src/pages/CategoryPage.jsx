@@ -65,15 +65,15 @@ const CategoryPage = () => {
   };
 
   return (
-    <Container maxWidth="xl" className="py-8">
+    <Container maxWidth="xl" className="py-4 sm:py-8">
       {/* Header */}
       <Box className="mb-8">
-        <Typography variant="h3" className="font-bold mb-4">
+        <Typography variant="h4" component="h1" className="font-bold mb-4">
           {categoryNames[slug] || "Category"}
         </Typography>
 
         {/* Filters */}
-        <Grid container spacing={3} alignItems="center">
+        <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} md={4}>
             <TextField
               fullWidth

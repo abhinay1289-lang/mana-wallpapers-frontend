@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <Box component="footer" className="bg-gray-900 text-white py-12 mt-auto">
       <Container maxWidth="xl">
-        <Grid container spacing={4}>
+        <Grid container spacing={4} style={{marginLeft:'0px'}}>
           {/* Company Info */}
           <Grid item xs={12} md={4} style={{ padding: "0rem" }}>
             <div className="flex items-center">

@@ -57,10 +57,10 @@ const LoginPage = () => {
   };
 
   return (
-    <Container maxWidth="sm" className="py-16">
-      <Paper elevation={3} className="p-8">
+    <Container maxWidth="sm" className="py-8 sm:py-16">
+      <Paper elevation={3} className="p-4 sm:p-8">
         <Box className="text-center mb-6">
-          <Typography variant="h4" className="font-bold text-indigo-600 mb-2">
+          <Typography variant="h4" component="h1" className="font-bold text-indigo-600 mb-2">
             Welcome Back
           </Typography>
           <Typography variant="body1" color="text.secondary">
@@ -136,7 +136,7 @@ const LoginPage = () => {
             variant="contained"
             size="large"
             disabled={isLoading}
-            className="py-3 mt-6"
+            className="py-3 mt-4 sm:mt-6"
           >
             {isLoading ? "Signing in..." : "Sign In"}
           </Button>

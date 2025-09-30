@@ -57,8 +57,8 @@ const CartPage = () => {
   }
 
   return (
-    <Container maxWidth="lg" className="py-8">
-      <Typography variant="h4" className="font-bold mb-6">
+    <Container maxWidth="lg" className="py-4 sm:py-8">
+      <Typography variant="h4" component="h1" className="font-bold mb-6">
         Shopping Cart
       </Typography>
 
@@ -69,7 +69,7 @@ const CartPage = () => {
             {items.map((item) => (
               <Card key={item.id}>
                 <CardContent>
-                  <Grid container spacing={3} alignItems="center">
+                  <Grid container spacing={2} alignItems="center">
                     {/* Thumbnail */}
                     <Grid item xs={12} sm={3}>
                       <img
@@ -78,13 +78,13 @@ const CartPage = () => {
                           "https://via.placeholder.com/150x100?text=Wallpaper"
                         }
                         alt={item.title}
-                        className="w-full h-20 object-cover rounded"
+                        className="w-full h-auto object-cover rounded"
                       />
                     </Grid>
 
                     {/* Details */}
                     <Grid item xs={12} sm={4}>
-                      <Typography variant="h6" className="font-semibold">
+                      <Typography variant="h6" component="div" className="font-semibold">
                         {item.title}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
@@ -93,7 +93,7 @@ const CartPage = () => {
                     </Grid>
 
                     {/* Price */}
-                    <Grid item xs={12} sm={2}>
+                    <Grid item xs={6} sm={2}>
                       <Typography
                         variant="h6"
                         color="primary"
@@ -106,7 +106,7 @@ const CartPage = () => {
                     </Grid>
 
                     {/* Quantity */}
-                    <Grid item xs={12} sm={2}>
+                    <Grid item xs={6} sm={2}>
                       <Box className="flex items-center justify-center">
                         <IconButton
                           size="small"
@@ -123,7 +123,7 @@ const CartPage = () => {
                             style: { textAlign: "center" },
                             min: 1,
                           }}
-                          sx={{ width: 60, mx: 1 }}
+                          sx={{ width: 40, mx: 1 }}
                           onChange={(e) => {
                             const value = parseInt(e.target.value) || 1;
                             updateQuantity(item.id, value);
@@ -141,7 +141,7 @@ const CartPage = () => {
                     </Grid>
 
                     {/* Remove */}
-                    <Grid item xs={12} sm={1}>
+                    <Grid item xs={12} sm={1} className="text-right">
                       <IconButton
                         color="error"
                         onClick={() => removeFromCart(item.id)}
@@ -154,7 +154,7 @@ const CartPage = () => {
               </Card>
             ))}
 
-            <Box className="flex justify-between">
+            <Box className="flex justify-between mt-4">
               <Button variant="outlined" onClick={clearCart} color="error">
                 Clear Cart
               </Button>

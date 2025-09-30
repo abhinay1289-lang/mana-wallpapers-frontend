@@ -61,8 +61,8 @@ const CheckoutPage = () => {
   }
 
   return (
-    <Container maxWidth="lg" className="py-8">
-      <Typography variant="h4" className="font-bold mb-6">
+    <Container maxWidth="lg" className="py-4 sm:py-8">
+      <Typography variant="h4" component="h1" className="font-bold mb-6">
         Checkout
       </Typography>
 
@@ -78,7 +78,7 @@ const CheckoutPage = () => {
               <List>
                 {items.map((item, index) => (
                   <div key={item.id}>
-                    <ListItem className="px-0">
+                    <ListItem disableGutters>
                       <ListItemText
                         primary={item.title}
                         secondary={`${item.resolution} • ${item.format} • Qty: ${item.quantity}`}

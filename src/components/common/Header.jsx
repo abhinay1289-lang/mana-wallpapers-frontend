@@ -8,8 +8,6 @@ import {
   Badge,
   Menu,
   MenuItem,
-  Box,
-  Container,
   Drawer,
   List,
   ListItem,
@@ -55,8 +53,8 @@ const Header = () => {
   const cartItemCount = getItemCount();
 
   const mobileMenuItems = (
-    <Box
-      sx={{ width: 250 }}
+    <div
+      className="w-64"
       role="presentation"
       onClick={toggleMobileMenu}
       onKeyDown={toggleMobileMenu}
@@ -75,29 +73,29 @@ const Header = () => {
           <ListItemText primary="Technology" />
         </ListItem>
       </List>
-    </Box>
+    </div>
   );
 
   return (
     <AppBar position="sticky" className="bg-header-color shadow-md">
-      <Container maxWidth="xl">
-        <Toolbar className="flex justify-between">
+      <div className="container mx-auto px-4">
+        <Toolbar className="flex justify-between items-center">
           {/* Logo */}
-          <Link to="/" className="no-underline flex items-center">
+          <Link to="/" className="flex items-center no-underline">
             <img
               src="/logo.png"
               alt="Mana Wallpapers"
-              style={{ height: "5rem" }}
+              className="h-12 md:h-20"
             />
           </Link>
 
           {/* Search Bar */}
-          <div className="flex-grow mx-8 hidden md:block">
+          <div className="flex-grow mx-4 md:mx-8">
             <Search />
           </div>
 
           {/* Navigation Links */}
-          <Box className="hidden md:flex space-x-6">
+          <div className="hidden md:flex items-center space-x-4">
             <Link
               to="/"
               className="text-text-color hover:text-indigo-400 no-underline"
@@ -122,10 +120,10 @@ const Header = () => {
             >
               <Button style={{ color: "#fff" }}>Technology</Button>
             </Link>
-          </Box>
+          </div>
 
           {/* Right side buttons */}
-          <Box className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2">
             {/* Cart */}
             <Link to="/cart">
               <IconButton color="inherit" className="hover:bg-accent-color">
@@ -193,7 +191,7 @@ const Header = () => {
                 </Menu>
               </>
             ) : (
-              <Box className="space-x-2 hidden md:flex">
+              <div className="hidden md:flex items-center space-x-2">
                 <Link to="/login">
                   <Button
                     style={{ color: "#fff" }}
@@ -207,7 +205,7 @@ const Header = () => {
                     Register
                   </Button>
                 </Link>
-              </Box>
+              </div>
             )}
             {/* Mobile Menu */}
             <IconButton
@@ -228,9 +226,9 @@ const Header = () => {
             >
               {mobileMenuItems}
             </Drawer>
-          </Box>
+          </div>
         </Toolbar>
-      </Container>
+      </div>
     </AppBar>
   );
 };

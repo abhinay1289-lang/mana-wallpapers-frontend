@@ -13,6 +13,8 @@ import {
   ListItemText,
   Button,
   Chip,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   Download as DownloadIcon,
@@ -27,6 +29,8 @@ import { useAuth } from "../context/AuthContext";
 const BuyerDashboard = () => {
   const [tabValue, setTabValue] = useState(0);
   const { user } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const { data: ordersData, isLoading: ordersLoading } = useQuery({
     queryKey: ["orders"],
@@ -52,8 +56,8 @@ const BuyerDashboard = () => {
   };
 
   return (
-    <Container maxWidth="lg" className="py-8">
-      <Typography variant="h4" className="font-bold mb-2">
+    <Container maxWidth="lg" className="py-4 sm:py-8">
+      <Typography variant="h4" component="h1" className="font-bold mb-2">
         Welcome back, {user?.fullName}!
       </Typography>
       <Typography variant="body1" color="text.secondary" className="mb-6">
@@ -62,10 +66,15 @@ const BuyerDashboard = () => {
 
       <Card>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <Tabs value={tabValue} onChange={handleTabChange}>
-            <Tab icon={<ReceiptIcon />} label="My Orders" />
-            <Tab icon={<DownloadIcon />} label="Downloads" />
-            <Tab icon={<HistoryIcon />} label="History" />
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            variant={isMobile ? "scrollable" : "standard"}
+            scrollButtons="auto"
+          >
+            <Tab icon={<ReceiptIcon />} label={!isMobile && "My Orders"} />
+            <Tab icon={<DownloadIcon />} label={!isMobile && "Downloads"} />
+            <Tab icon={<HistoryIcon />} label={!isMobile && "History"} />
           </Tabs>
         </Box>
 
@@ -79,14 +88,18 @@ const BuyerDashboard = () => {
               {ordersLoading ? (
                 <Typography>Loading orders...</Typography>
               ) : ordersData?.data?.content?.length > 0 ? (
-                <List>
+                <List disablePadding>
                   {ordersData.data.content.map((order) => (
-                    <ListItem key={order.id} className="border-b">
+                    <ListItem
+                      key={order.id}
+                      className="flex flex-col sm:flex-row border-b py-4"
+                    >
                       <ListItemText
                         primary={`Order #${order.id.substring(0, 8)}`}
                         secondary={`${new Date(
                           order.createdAt
                         ).toLocaleDateString()} • $${order.total.toFixed(2)}`}
+                        className="mb-2 sm:mb-0"
                       />
                       <Chip
                         label={order.status}
@@ -111,14 +124,18 @@ const BuyerDashboard = () => {
               {downloadsLoading ? (
                 <Typography>Loading downloads...</Typography>
               ) : downloadsData?.data?.length > 0 ? (
-                <List>
+                <List disablePadding>
                   {downloadsData.data.map((download) => (
-                    <ListItem key={download.id} className="border-b">
+                    <ListItem
+                      key={download.id}
+                      className="flex flex-col sm:flex-row border-b py-4"
+                    >
                       <ListItemText
                         primary={download.wallpaper?.title || "Unknown"}
                         secondary={`Expires: ${new Date(
                           download.expiresAt
                         ).toLocaleDateString()}`}
+                        className="flex-1 mb-2 sm:mb-0"
                       />
                       <Button
                         variant="contained"

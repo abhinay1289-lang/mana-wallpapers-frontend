@@ -20,6 +20,8 @@ import {
   MenuItem,
   Chip,
   IconButton,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   CloudUpload as UploadIcon,
@@ -41,6 +43,8 @@ const AdminDashboard = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const queryClient = useQueryClient();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const {
     register,
@@ -139,8 +143,8 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <Container maxWidth="xl" className="py-8">
-      <Typography variant="h4" className="font-bold mb-6">
+    <Container maxWidth="xl" className="py-4 sm:py-8">
+      <Typography variant="h4" component="h1" className="font-bold mb-6">
         Admin Dashboard
       </Typography>
 
@@ -166,10 +170,15 @@ const AdminDashboard = () => {
       {/* Tabs */}
       <Card>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <Tabs value={tabValue} onChange={handleTabChange}>
-            <Tab icon={<DashboardIcon />} label="Dashboard" />
-            <Tab icon={<InventoryIcon />} label="Wallpapers" />
-            <Tab icon={<UploadIcon />} label="Upload" />
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            variant={isMobile ? "scrollable" : "standard"}
+            scrollButtons="auto"
+          >
+            <Tab icon={<DashboardIcon />} label={!isMobile && "Dashboard"} />
+            <Tab icon={<InventoryIcon />} label={!isMobile && "Wallpapers"} />
+            <Tab icon={<UploadIcon />} label={!isMobile && "Upload"} />
           </Tabs>
         </Box>
 
@@ -194,8 +203,8 @@ const AdminDashboard = () => {
           {/* Wallpapers Tab */}
           {tabValue === 1 && (
             <Box>
-              <Box className="flex justify-between items-center mb-4">
-                <Typography variant="h6" className="font-semibold">
+              <Box className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+                <Typography variant="h6" className="font-semibold mb-2 sm:mb-0">
                   Manage Wallpapers
                 </Typography>
                 <Button

@@ -76,15 +76,15 @@ const ProductPage = () => {
 
   if (isLoading) {
     return (
-      <Container maxWidth="lg" className="py-8">
-        <Grid container spacing={6}>
+      <Container maxWidth="lg" className="py-4 sm:py-8">
+        <Grid container spacing={{ xs: 2, md: 6 }}>
           <Grid item xs={12} md={8}>
-            <Skeleton variant="rectangular" width="100%" height={600} />
+            <Skeleton variant="rectangular" width="100%" height={400} />
           </Grid>
           <Grid item xs={12} md={4}>
             <Skeleton variant="text" height={50} />
             <Skeleton variant="text" height={30} width="60%" />
-            <Skeleton variant="rectangular" height={200} className="mt-4" />
+            <Skeleton variant="rectangular" height={150} className="mt-4" />
           </Grid>
         </Grid>
       </Container>
@@ -102,8 +102,8 @@ const ProductPage = () => {
   }
 
   return (
-    <Container maxWidth="lg" className="py-8">
-      <Grid container spacing={6}>
+    <Container maxWidth="lg" className="py-4 sm:py-8">
+      <Grid container spacing={{ xs: 2, md: 6 }}>
         {/* Wallpaper Preview */}
         <Grid item xs={12} md={8}>
           <Card className="overflow-hidden">
@@ -114,17 +114,17 @@ const ProductPage = () => {
                 "https://via.placeholder.com/800x600?text=Wallpaper"
               }
               alt={wallpaper.title}
-              className="w-full max-h-96 object-cover md:max-h-none"
+              className="w-full h-auto object-cover"
             />
           </Card>
         </Grid>
 
         {/* Product Info */}
         <Grid item xs={12} md={4}>
-          <Box className="space-y-6">
+          <Box className="space-y-4">
             {/* Title and Price */}
             <Box>
-              <Typography variant="h4" className="font-bold mb-2">
+              <Typography variant="h4" component="h1" className="font-bold mb-2">
                 {wallpaper.title}
               </Typography>
 

@@ -71,7 +71,7 @@ const HomePage = () => {
     <Box>
       <ThreeDBackground />
       {/* Hero Section */}
-      <Box className="relative text-white py-40 text-center">
+      <Box className="relative text-white py-20 sm:py-32 md:py-40 text-center">
         <Container maxWidth="lg">
           <Typography variant="h2" className="font-bold mb-4 text-gradient">
             Find Your Next Wallpaper
