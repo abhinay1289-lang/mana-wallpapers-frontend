@@ -27,6 +27,10 @@ import CheckoutPage from "./pages/CheckoutPage";
 import BuyerDashboard from "./pages/BuyerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import SearchPage from "./pages/SearchPage";
+import UserProfile from "./pages/UserProfile";
+import Wishlist from "./pages/Wishlist";
+import UserManagement from "./pages/UserManagement";
+import Analytics from "./pages/Analytics";
 
 import "./styles/globals.css";
 
@@ -138,11 +142,43 @@ const App = () => {
                         </ProtectedRoute>
                       }
                     />
+                     <Route
+                      path="/profile"
+                      element={
+                        <ProtectedRoute>
+                          <UserProfile />
+                        </ProtectedRoute>
+                      }
+                    />
+                     <Route
+                      path="/wishlist"
+                      element={
+                        <ProtectedRoute>
+                          <Wishlist />
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route
                       path="/admin"
                       element={
                         <ProtectedRoute requiredRole="ADMIN">
                           <AdminDashboard />
+                        </ProtectedRoute>
+                      }
+                    />
+                     <Route
+                      path="/admin/users"
+                      element={
+                        <ProtectedRoute requiredRole="ADMIN">
+                          <UserManagement />
+                        </ProtectedRoute>
+                      }
+                    />
+                     <Route
+                      path="/admin/analytics"
+                      element={
+                        <ProtectedRoute requiredRole="ADMIN">
+                          <Analytics />
                         </ProtectedRoute>
                       }
                     />

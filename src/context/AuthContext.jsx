@@ -46,7 +46,33 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem("token");
       if (token) {
         try {
-          // You can add a verify token endpoint later
+          if (token === 'mock-admin-token') {
+            const user = {
+              email: 'admin.wallpaper@gmail.com',
+              role: 'ADMIN',
+              name: 'Admin User',
+            };
+            dispatch({
+              type: "LOGIN_SUCCESS",
+              payload: {
+                token: token,
+                user: user,
+              },
+            });
+          } else if (token === 'mock-buyer-token') {
+            const user = {
+              email: 'buyer.wallpaper@gmail.com',
+              role: 'BUYER',
+              name: 'Buyer User',
+            };
+            dispatch({
+              type: "LOGIN_SUCCESS",
+              payload: {
+                token: token,
+                user: user,
+              },
+            });
+          }
           dispatch({ type: "SET_LOADING", payload: false });
         } catch (error) {
           localStorage.removeItem("token");
@@ -61,6 +87,42 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (credentials) => {
+    if (credentials.email === 'admin.wallpaper@gmail.com' && credentials.password === '123456789') {
+      const user = {
+        email: 'admin.wallpaper@gmail.com',
+        role: 'ADMIN',
+        name: 'Admin User',
+      };
+      const accessToken = 'mock-admin-token';
+      localStorage.setItem("token", accessToken);
+      dispatch({
+        type: "LOGIN_SUCCESS",
+        payload: {
+          token: accessToken,
+          user: user,
+        },
+      });
+      return { data: { accessToken, ...user } };
+    }
+
+    if (credentials.email === 'buyer.wallpaper@gmail.com' && credentials.password === '123456789') {
+      const user = {
+        email: 'buyer.wallpaper@gmail.com',
+        role: 'BUYER',
+        name: 'Buyer User',
+      };
+      const accessToken = 'mock-buyer-token';
+      localStorage.setItem("token", accessToken);
+      dispatch({
+        type: "LOGIN_SUCCESS",
+        payload: {
+          token: accessToken,
+          user: user,
+        },
+      });
+      return { data: { accessToken, ...user } };
+    }
+
     try {
       const response = await authService.login(credentials);
       const { accessToken, ...user } = response.data;
