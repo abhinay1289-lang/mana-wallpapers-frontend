@@ -31,6 +31,7 @@ import Wishlist from "./pages/Wishlist";
 import UserManagement from "./pages/UserManagement";
 import Analytics from "./pages/Analytics";
 import AdminDashboard from "./pages/AdminDashboard";
+import UploadWallpaper from "./pages/UploadWallpaper";
 
 import "./styles/globals.css";
 
@@ -175,6 +176,14 @@ const AppContent = () => (
             element={
               <ProtectedRoute requiredRole="ADMIN">
                 <Analytics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/upload"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <UploadWallpaper />
               </ProtectedRoute>
             }
           />
