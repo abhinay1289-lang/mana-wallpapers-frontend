@@ -160,11 +160,6 @@ const App = () => {
                     />
 
                     {/* Admin Routes */}
-                    {/* <Route
-                      path="/admin"
-                      element={<Navigate to="/admin/wallpapers" />}
-                    /> */}
-                   
                     <Route
                       path="/admin/upload-wallpaper"
                       element={
