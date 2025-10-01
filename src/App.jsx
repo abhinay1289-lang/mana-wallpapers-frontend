@@ -30,8 +30,10 @@ import UserProfile from "./pages/UserProfile";
 import Wishlist from "./pages/Wishlist";
 import UserManagement from "./pages/UserManagement";
 import Analytics from "./pages/Analytics";
-import AdminDashboard from "./pages/AdminDashboard";
 import UploadWallpaper from "./pages/UploadWallpaper";
+import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
+import WallpaperManagement from "./pages/WallpaperManagement";
 
 import "./styles/globals.css";
 
@@ -157,14 +159,10 @@ const AppContent = () => (
           {/* Admin Routes */}
           <Route
             path="/admin/dashboard"
-            element={
-              <ProtectedRoute requiredRole="ADMIN">
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
+            element={<Navigate to="/admin/wallpapers" />}
           />
           <Route
-            path="/admin/users"
+            path="/admin/user-management"
             element={
               <ProtectedRoute requiredRole="ADMIN">
                 <UserManagement />
@@ -180,10 +178,34 @@ const AppContent = () => (
             }
           />
           <Route
-            path="/admin/upload"
+            path="/admin/upload-wallpaper"
             element={
               <ProtectedRoute requiredRole="ADMIN">
                 <UploadWallpaper />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/reports"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <Reports />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/wallpapers"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <WallpaperManagement />
               </ProtectedRoute>
             }
           />

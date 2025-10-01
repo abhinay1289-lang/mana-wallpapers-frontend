@@ -50,6 +50,32 @@ export const wallpaperService = {
   },
 };
 
+export const uploadWallpaper = async (formData) => {
+    const imageFile = formData.get('image');
+    if (!imageFile) {
+        throw new Error('Image file is missing');
+    }
+
+    // 1. Get a presigned URL for upload
+    const { url: presignedUrl, key } = await wallpaperService.generateUploadUrl(imageFile.name, imageFile.type);
+
+    // 2. Upload the file to the presigned URL
+    await wallpaperService.uploadFile(presignedUrl, imageFile);
+
+    // 3. Create the wallpaper metadata in the database
+    const wallpaperData = {
+        title: formData.get('title'),
+        description: formData.get('description'),
+        price: Number(formData.get('price')),
+        category: formData.get('category'),
+        tags: formData.get('tags').split(',').map(tag => tag.trim()),
+        imageUrl: key
+    };
+
+    return await wallpaperService.createWallpaper(wallpaperData);
+};
+
+
 export const searchWallpapers = async (searchTerm) => {
   const response = await api.get("/wallpapers");
   const allWallpapers = response.data.wallpapers;

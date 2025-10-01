@@ -233,7 +233,7 @@ const HomePage = () => {
           aria-label="upload"
           className="fixed bottom-8 right-8"
           component={Link}
-          to="/admin"
+          to="/admin/upload-wallpaper"
         >
           <UploadIcon />
         </Fab>
