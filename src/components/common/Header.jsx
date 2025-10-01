@@ -96,42 +96,55 @@ const Header = () => {
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link
+            <Button
+              component={Link}
               to="/"
-              className="text-text-color hover:text-indigo-400 no-underline"
+              style={{ color: "#fff" }}
+              className="hover:text-indigo-400"
             >
-              <Button style={{ color: "#fff" }}>Home</Button>
-            </Link>
-            <Link
+              Home
+            </Button>
+            <Button
+              component={Link}
               to="/category/nature"
-              className="text-text-color hover:text-indigo-400 no-underline"
+              style={{ color: "#fff" }}
+              className="hover:text-indigo-400"
             >
-              <Button style={{ color: "#fff" }}>Nature</Button>
-            </Link>
-            <Link
+              Nature
+            </Button>
+            <Button
+              component={Link}
               to="/category/abstract"
-              className="text-text-color hover:text-indigo-400 no-underline"
+              style={{ color: "#fff" }}
+              className="hover:text-indigo-400"
             >
-              <Button style={{ color: "#fff" }}>Abstract</Button>
-            </Link>
-            <Link
+              Abstract
+            </Button>
+            <Button
+              component={Link}
               to="/category/technology"
-              className="text-text-color hover:text-indigo-400 no-underline"
+              style={{ color: "#fff" }}
+              className="hover:text-indigo-400"
             >
-              <Button style={{ color: "#fff" }}>Technology</Button>
-            </Link>
+              Technology
+            </Button>
           </div>
 
           {/* Right side buttons */}
           <div className="flex items-center space-x-2">
             {/* Cart */}
-            <Link to="/cart">
-              <IconButton color="inherit" className="hover:bg-accent-color">
+            {user?.role === "BUYER" && (
+              <IconButton
+                component={Link}
+                to="/buyer/cart"
+                color="inherit"
+                className="hover:bg-accent-color"
+              >
                 <Badge badgeContent={cartItemCount} style={{ color: "#fff" }}>
                   <ShoppingCartIcon />
                 </Badge>
               </IconButton>
-            </Link>
+            )}
 
             {/* User Menu or Login/Register */}
             {isAuthenticated ? (
@@ -166,24 +179,17 @@ const Header = () => {
                 >
                   <MenuItem
                     onClick={() => {
-                      navigate("/dashboard");
+                      const dashboardPath =
+                        user?.role === "ADMIN"
+                          ? "/admin/dashboard"
+                          : "/buyer/dashboard";
+                      navigate(dashboardPath);
                       handleMenuClose();
                     }}
                   >
                     <DashboardIcon className="mr-2" />
                     Dashboard
                   </MenuItem>
-                  {user?.role === "ADMIN" && (
-                    <MenuItem
-                      onClick={() => {
-                        navigate("/admin");
-                        handleMenuClose();
-                      }}
-                    >
-                      <DashboardIcon className="mr-2" />
-                      Admin Panel
-                    </MenuItem>
-                  )}
                   <MenuItem onClick={handleLogout}>
                     <LogoutIcon className="mr-2" />
                     Logout
@@ -192,19 +198,22 @@ const Header = () => {
               </>
             ) : (
               <div className="hidden md:flex items-center space-x-2">
-                <Link to="/login">
-                  <Button
-                    style={{ color: "#fff" }}
-                    className="hover:bg-accent-color"
-                  >
-                    Login
-                  </Button>
-                </Link>
-                <Link to="/register">
-                  <Button variant="contained" color="primary">
-                    Register
-                  </Button>
-                </Link>
+                <Button
+                  component={Link}
+                  to="/login"
+                  style={{ color: "#fff" }}
+                  className="hover:bg-accent-color"
+                >
+                  Login
+                </Button>
+                <Button
+                  component={Link}
+                  to="/register"
+                  variant="contained"
+                  color="primary"
+                >
+                  Register
+                </Button>
               </div>
             )}
             {/* Mobile Menu */}

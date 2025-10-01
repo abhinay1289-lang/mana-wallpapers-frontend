@@ -13,13 +13,9 @@ import {
   Divider,
   Alert,
 } from "@mui/material";
-import { loadStripe } from "@stripe/stripe-js";
-import { useQuery } from "@tanstack/react-query";
 import { useCart } from "../context/CartContext";
 import { paymentService } from "../services/paymentService";
 import toast from "react-hot-toast";
-
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const CheckoutPage = () => {
   const { items, total, clearCart } = useCart();
@@ -32,12 +28,52 @@ const CheckoutPage = () => {
     }
 
     setIsProcessing(true);
-    try {
-      const response = await paymentService.createCheckoutSession(items);
-      const { checkoutUrl } = response.data;
 
-      // Redirect to Stripe Checkout
-      window.location.href = checkoutUrl;
+    try {
+      const order = await paymentService.createOrder({
+        amount: total * 100, // Amount in cents
+        currency: "INR",
+        receipt: `receipt_${Date.now()}`,
+        items: items,
+      });
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: "Mana Wallpapers",
+        description: "Wallpaper Purchase",
+        order_id: order.id,
+        handler: async (response) => {
+          try {
+            await paymentService.verifyPayment({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+            toast.success("Payment successful!");
+            clearCart();
+            // Redirect to a success page or dashboard
+            window.location.href = "/";
+          } catch (error) {
+            toast.error("Payment verification failed");
+          }
+        },
+        prefill: {
+          name: "Test User",
+          email: "test.user@example.com",
+          contact: "9999999999",
+        },
+        notes: {
+          address: "Test Address",
+        },
+        theme: {
+          color: "#3399cc",
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (error) {
       toast.error("Failed to start checkout process");
     } finally {
@@ -67,7 +103,6 @@ const CheckoutPage = () => {
       </Typography>
 
       <Grid container spacing={4}>
-        {/* Order Summary */}
         <Grid item xs={12} md={8}>
           <Card>
             <CardContent>
@@ -86,9 +121,10 @@ const CheckoutPage = () => {
                       <Typography variant="h6" className="font-semibold">
                         {item.isFree
                           ? "FREE"
-                          : `$${(
+                          : `₹${(
                               (item.priceCents / 100) *
-                              item.quantity
+                              item.quantity *
+                              80
                             ).toFixed(2)}`}
                       </Typography>
                     </ListItem>
@@ -104,14 +140,13 @@ const CheckoutPage = () => {
                   Total
                 </Typography>
                 <Typography variant="h5" className="font-bold">
-                  ${total.toFixed(2)}
+                  ₹{(total * 80).toFixed(2)}
                 </Typography>
               </Box>
             </CardContent>
           </Card>
         </Grid>
 
-        {/* Payment */}
         <Grid item xs={12} md={4}>
           <Card>
             <CardContent>
@@ -120,7 +155,7 @@ const CheckoutPage = () => {
               </Typography>
 
               <Alert severity="info" className="mb-4">
-                You will be redirected to Stripe to complete your payment
+                You will be redirected to Razorpay to complete your payment
                 securely.
               </Alert>
 
@@ -132,7 +167,9 @@ const CheckoutPage = () => {
                 disabled={isProcessing}
                 className="mb-4"
               >
-                {isProcessing ? "Processing..." : `Pay $${total.toFixed(2)}`}
+                {isProcessing
+                  ? "Processing..."
+                  : `Pay ₹${(total * 80).toFixed(2)}`}
               </Button>
 
               <Typography
@@ -140,7 +177,7 @@ const CheckoutPage = () => {
                 color="text.secondary"
                 className="text-center block"
               >
-                Powered by Stripe. Your payment information is secure and
+                Powered by Razorpay. Your payment information is secure and
                 encrypted.
               </Typography>
             </CardContent>

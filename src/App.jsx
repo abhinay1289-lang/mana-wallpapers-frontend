@@ -25,12 +25,12 @@ import ProductPage from "./pages/ProductPage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import BuyerDashboard from "./pages/BuyerDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
 import SearchPage from "./pages/SearchPage";
 import UserProfile from "./pages/UserProfile";
 import Wishlist from "./pages/Wishlist";
 import UserManagement from "./pages/UserManagement";
 import Analytics from "./pages/Analytics";
+import AdminDashboard from "./pages/AdminDashboard";
 
 import "./styles/globals.css";
 
@@ -95,117 +95,121 @@ const theme = createTheme({
   },
 });
 
-const App = () => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <AuthProvider>
-          <CartProvider>
-            <Router>
-              <div className="min-h-screen flex flex-col bg-primary-color text-text-color">
-                <Header />
-                <main className="flex-1">
-                  <Routes>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
-                    <Route path="/category/:slug" element={<CategoryPage />} />
-                    <Route path="/wallpaper/:id" element={<ProductPage />} />
-                    <Route
-                      path="/search/:searchTerm"
-                      element={<SearchPage />}
-                    />
+const AppContent = () => (
+  <Router>
+    <div className="min-h-screen flex flex-col bg-primary-color text-text-color">
+      <Header />
+      <main className="flex-1">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/category/:slug" element={<CategoryPage />} />
+          <Route path="/wallpaper/:id" element={<ProductPage />} />
+          <Route
+            path="/search/:searchTerm"
+            element={<SearchPage />}
+          />
 
-                    {/* Protected Routes */}
-                    <Route
-                      path="/cart"
-                      element={
-                        <ProtectedRoute>
-                          <CartPage />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/checkout"
-                      element={
-                        <ProtectedRoute>
-                          <CheckoutPage />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/dashboard"
-                      element={
-                        <ProtectedRoute>
-                          <BuyerDashboard />
-                        </ProtectedRoute>
-                      }
-                    />
-                     <Route
-                      path="/profile"
-                      element={
-                        <ProtectedRoute>
-                          <UserProfile />
-                        </ProtectedRoute>
-                      }
-                    />
-                     <Route
-                      path="/wishlist"
-                      element={
-                        <ProtectedRoute>
-                          <Wishlist />
-                        </ProtectedRoute>
-                      }
-                    />
-                    <Route
-                      path="/admin"
-                      element={
-                        <ProtectedRoute requiredRole="ADMIN">
-                          <AdminDashboard />
-                        </ProtectedRoute>
-                      }
-                    />
-                     <Route
-                      path="/admin/users"
-                      element={
-                        <ProtectedRoute requiredRole="ADMIN">
-                          <UserManagement />
-                        </ProtectedRoute>
-                      }
-                    />
-                     <Route
-                      path="/admin/analytics"
-                      element={
-                        <ProtectedRoute requiredRole="ADMIN">
-                          <Analytics />
-                        </ProtectedRoute>
-                      }
-                    />
+          {/* Buyer Routes */}
+          <Route
+            path="/buyer/cart"
+            element={
+              <ProtectedRoute requiredRole="BUYER">
+                <CartPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/buyer/checkout"
+            element={
+              <ProtectedRoute requiredRole="BUYER">
+                <CheckoutPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/buyer/dashboard"
+            element={
+              <ProtectedRoute requiredRole="BUYER">
+                <BuyerDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/buyer/profile"
+            element={
+              <ProtectedRoute requiredRole="BUYER">
+                <UserProfile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/buyer/wishlist"
+            element={
+              <ProtectedRoute requiredRole="BUYER">
+                <Wishlist />
+              </ProtectedRoute>
+            }
+          />
 
-                    {/* Catch all route */}
-                    <Route path="*" element={<Navigate to="/" />} />
-                  </Routes>
-                </main>
-                <Footer />
-              </div>
-            </Router>
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: "#333",
-                  color: "#fff",
-                },
-              }}
-            />
-          </CartProvider>
-        </AuthProvider>
-      </ThemeProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
-  );
-};
+          {/* Admin Routes */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <UserManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/analytics"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <Analytics />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Catch all route */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </main>
+      <Footer />
+    </div>
+  </Router>
+);
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>
+        <CartProvider>
+          <AppContent />
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: "#333",
+                color: "#fff",
+              },
+            }}
+          />
+        </CartProvider>
+      </AuthProvider>
+    </ThemeProvider>
+    <ReactQueryDevtools initialIsOpen={false} />
+  </QueryClientProvider>
+);
 
 export default App;

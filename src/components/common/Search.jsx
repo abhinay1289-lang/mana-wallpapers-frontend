@@ -24,7 +24,7 @@ const Search = () => {
         className="text-gray-600 bg-gray-100 rounded-full px-4 py-1 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
       <IconButton type="submit" size="small" className="absolute right-1 top-1/2 -translate-y-1/2">
-        <SearchIcon />
+        <SearchIcon style={{color:'GrayText'}}/>
       </IconButton>
     </form>
   );
