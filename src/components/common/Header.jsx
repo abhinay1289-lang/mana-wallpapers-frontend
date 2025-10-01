@@ -24,6 +24,7 @@ import {
   BarChart as BarChartIcon,
   Settings as SettingsIcon,
   Description as ReportsIcon,
+  PhotoLibrary as WallpaperManagementIcon,
 } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -187,7 +188,7 @@ const Header = () => {
                       <MenuItem
                         key="dashboard"
                         onClick={() => {
-                          navigate("/admin/wallpapers");
+                          navigate("/admin");
                           handleMenuClose();
                         }}
                       >
@@ -195,9 +196,19 @@ const Header = () => {
                         Dashboard
                       </MenuItem>,
                       <MenuItem
+                        key="wallpaper-management"
+                        onClick={() => {
+                          navigate("/admin/wallpapers");
+                          handleMenuClose();
+                        }}
+                      >
+                        <WallpaperManagementIcon className="mr-2" />
+                        Wallpaper Management
+                      </MenuItem>,
+                      <MenuItem
                         key="user-management"
                         onClick={() => {
-                          navigate("/admin/user-management");
+                          navigate("/admin/users");
                           handleMenuClose();
                         }}
                       >

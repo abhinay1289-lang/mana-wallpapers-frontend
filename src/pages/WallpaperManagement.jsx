@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAllWallpapers, deleteWallpaper } from '../services/wallpaperService';
+import { wallpaperService } from '../services/wallpaperService';
 import WallpaperList from '../components/wallpapers/WallpaperList';
 import { Button, Select, MenuItem, Input, CircularProgress } from '@mui/material';
 
@@ -15,7 +15,7 @@ const WallpaperManagement = () => {
   useEffect(() => {
     const fetchWallpapers = async () => {
       try {
-        const data = await getAllWallpapers();
+        const data = await wallpaperService.getAllWallpapers();
         setWallpapers(data);
         setFilteredWallpapers(data);
         const uniqueCategories = [...new Set(data.map(wp => wp.category))];
@@ -51,7 +51,7 @@ const WallpaperManagement = () => {
 
   const handleDelete = async wallpaperId => {
     try {
-      await deleteWallpaper(wallpaperId);
+      await wallpaperService.deleteWallpaper(wallpaperId);
       setWallpapers(wallpapers.filter(wp => wp._id !== wallpaperId));
     } catch (error) {
       console.error('Error deleting wallpaper:', error);
