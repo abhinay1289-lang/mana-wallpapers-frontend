@@ -28,22 +28,33 @@ import { useQuery } from "@tanstack/react-query";
 import { wallpaperService } from "../services/wallpaperService";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
+import { categories } from "../data/categories";
 
 const CategoryPage = () => {
   const { slug } = useParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("createdAt");
-  const [freeFilter, setFreeFilter] = useState("");
+  const [priceFilter, setPriceFilter] = useState("");
+  const [dimensionFilter, setDimensionFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState(slug || "all");
   const { addToCart } = useCart();
 
   const { data: wallpapersData, isLoading } = useQuery({
-    queryKey: ["wallpapers", slug, searchTerm, sortBy, freeFilter],
+    queryKey: [
+      "wallpapers",
+      categoryFilter,
+      searchTerm,
+      sortBy,
+      priceFilter,
+      dimensionFilter,
+    ],
     queryFn: () =>
       wallpaperService.getAllWallpapers({
-        category: slug === "all" ? undefined : slug,
+        category: categoryFilter === "all" ? undefined : categoryFilter,
         q: searchTerm || undefined,
         sortBy,
-        free: freeFilter === "" ? undefined : freeFilter === "true",
+        free: priceFilter === "" ? undefined : priceFilter === "true",
+        dimension: dimensionFilter === "" ? undefined : dimensionFilter,
         page: 0,
         size: 24,
       }),
@@ -54,27 +65,19 @@ const CategoryPage = () => {
     toast.success("Added to cart!");
   };
 
-  const categoryNames = {
-    nature: "Nature",
-    abstract: "Abstract",
-    technology: "Technology",
-    space: "Space",
-    minimalist: "Minimalist",
-    artistic: "Artistic",
-    all: "All Wallpapers",
-  };
+  const categoryName = categories.find(c => c.name.toLowerCase().replace(/ /g, '-') === categoryFilter)?.name || "All Wallpapers"
 
   return (
     <Container maxWidth="xl" className="py-4 sm:py-8">
       {/* Header */}
       <Box className="mb-8">
         <Typography variant="h4" component="h1" className="font-bold mb-4">
-          {categoryNames[slug] || "Category"}
+          {categoryName}
         </Typography>
 
         {/* Filters */}
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={3}>
             <TextField
               fullWidth
               placeholder="Search wallpapers..."
@@ -90,7 +93,23 @@ const CategoryPage = () => {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={2}>
+             <FormControl fullWidth>
+              <InputLabel>Category</InputLabel>
+              <Select
+                value={categoryFilter}
+                label="Category"
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                <MenuItem value="all">All</MenuItem>
+                {categories.map(cat => (
+                    <MenuItem key={cat.name} value={cat.name.toLowerCase().replace(/ /g, '-')}>{cat.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={2}>
             <FormControl fullWidth>
               <InputLabel>Sort By</InputLabel>
               <Select
@@ -100,22 +119,40 @@ const CategoryPage = () => {
               >
                 <MenuItem value="createdAt">Latest</MenuItem>
                 <MenuItem value="title">Title A-Z</MenuItem>
+                <MenuItem value="title-desc">Title Z-A</MenuItem>
                 <MenuItem value="priceCents">Price Low-High</MenuItem>
+                <MenuItem value="priceCents-desc">Price High-Low</MenuItem>
+                <MenuItem value="popularity">Popularity</MenuItem>
               </Select>
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={2}>
             <FormControl fullWidth>
-              <InputLabel>Price Filter</InputLabel>
+              <InputLabel>Price</InputLabel>
               <Select
-                value={freeFilter}
-                label="Price Filter"
-                onChange={(e) => setFreeFilter(e.target.value)}
+                value={priceFilter}
+                label="Price"
+                onChange={(e) => setPriceFilter(e.target.value)}
               >
                 <MenuItem value="">All</MenuItem>
-                <MenuItem value="true">Free Only</MenuItem>
-                <MenuItem value="false">Paid Only</MenuItem>
+                <MenuItem value="true">Free</MenuItem>
+                <MenuItem value="false">Paid</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6} md={2}>
+            <FormControl fullWidth>
+              <InputLabel>Dimension</InputLabel>
+              <Select
+                value={dimensionFilter}
+                label="Dimension"
+                onChange={(e) => setDimensionFilter(e.target.value)}
+              >
+                <MenuItem value="">All</MenuItem>
+                <MenuItem value="2d">2D</MenuItem>
+                <MenuItem value="3d">3D</MenuItem>
+                <MenuItem value="mixed">Mixed</MenuItem>
               </Select>
             </FormControl>
           </Grid>

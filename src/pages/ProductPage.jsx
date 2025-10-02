@@ -23,6 +23,7 @@ import { wallpaperService } from "../services/wallpaperService";
 import { downloadService } from "../services/downloadService";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
+import { categories } from "../data/categories";
 import toast from "react-hot-toast";
 
 const ProductPage = () => {
@@ -73,6 +74,8 @@ const ProductPage = () => {
     navigator.clipboard.writeText(window.location.href);
     toast.success("Link copied to clipboard!");
   };
+
+  const categoryName = categories.find(c => c.name.toLowerCase().replace(/ /g, '-') === wallpaper?.category)?.name || wallpaper?.category;
 
   if (isLoading) {
     return (
@@ -153,6 +156,12 @@ const ProductPage = () => {
 
             {/* Details */}
             <Box className="space-y-2">
+              <Typography variant="body2" color="text.secondary">
+                <strong>Category:</strong> {categoryName}
+              </Typography>
+               <Typography variant="body2" color="text.secondary">
+                <strong>Dimension:</strong> {wallpaper.dimension}
+              </Typography>
               <Typography variant="body2" color="text.secondary">
                 <strong>Resolution:</strong> {wallpaper.resolution}
               </Typography>

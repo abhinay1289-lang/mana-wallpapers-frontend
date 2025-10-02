@@ -25,6 +25,7 @@ import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
 import ThreeDBackground from "../components/common/ThreeDBackground";
+import { categories } from "../data/categories";
 
 const HomePage = () => {
   const { user } = useAuth();
@@ -39,33 +40,6 @@ const HomePage = () => {
     addToCart(wallpaper);
     toast.success("Added to cart!");
   };
-
-  const categories = [
-    {
-      name: "Nature",
-      slug: "nature",
-      image:
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop",
-    },
-    {
-      name: "Abstract",
-      slug: "abstract",
-      image:
-        "https://images.unsplash.com/photo-1567359781514-3b964e2b04d6?w=300&h=200&fit=crop",
-    },
-    {
-      name: "Technology",
-      slug: "technology",
-      image:
-        "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=300&h=200&fit=crop",
-    },
-    {
-      name: "Space",
-      slug: "space",
-      image:
-        "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=300&h=200&fit=crop",
-    },
-  ];
 
   return (
     <Box>
@@ -93,16 +67,16 @@ const HomePage = () => {
 
         <Grid container spacing={4}>
           {categories.map((category) => (
-            <Grid item xs={12} sm={6} md={3} key={category.slug}>
+            <Grid item xs={12} sm={6} md={3} key={category.name}>
               <Card
                 className="hover:shadow-lg transition-shadow cursor-pointer group transform hover:-translate-y-2"
                 component={Link}
-                to={`/category/${category.slug}`}
+                to={`/category/${category.name.toLowerCase().replace(/ /g, '-')}`}
               >
                 <CardMedia
                   component="img"
                   height="200"
-                  image={category.image}
+                  image={`https://source.unsplash.com/300x200/?${category.name}`}
                   alt={category.name}
                   className="group-hover:opacity-80 transition-opacity"
                   style={{ borderRadius: "1rem" }}

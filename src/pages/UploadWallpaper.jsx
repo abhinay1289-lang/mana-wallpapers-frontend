@@ -2,6 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { categories } from "../data/categories";
 
 import { uploadWallpaper } from "../services/wallpaperService";
 import "../styles/UploadWallpaper.css";
@@ -33,6 +34,7 @@ const UploadWallpaper = () => {
     formData.append("description", data.description);
     formData.append("price", data.price);
     formData.append("category", data.category);
+    formData.append("dimension", data.dimension);
     formData.append("tags", data.tags);
     formData.append("image", data.image[0]);
     mutate(formData);
@@ -84,13 +86,32 @@ const UploadWallpaper = () => {
         </div>
         <div className="form-group">
           <label htmlFor="category">Category</label>
-          <input
-            type="text"
+          <select
             id="category"
             {...register("category", { required: "Category is required" })}
-          />
+          >
+            {categories.map((cat) => (
+              <option key={cat.name} value={cat.name.toLowerCase().replace(/ /g, '-')}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
           {errors.category && (
             <p className="error-message">{errors.category.message}</p>
+          )}
+        </div>
+        <div className="form-group">
+          <label htmlFor="dimension">Dimension</label>
+          <select
+            id="dimension"
+            {...register("dimension", { required: "Dimension is required" })}
+          >
+            <option value="2d">2D</option>
+            <option value="3d">3D</option>
+            <option value="mixed">Mixed</option>
+          </select>
+          {errors.dimension && (
+            <p className="error-message">{errors.dimension.message}</p>
           )}
         </div>
         <div className="form-group">
