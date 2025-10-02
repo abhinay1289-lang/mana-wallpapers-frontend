@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -13,8 +13,54 @@ const UploadWallpaper = () => {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm();
+    watch,
+    setValue,
+  } = useForm({
+    defaultValues: {
+      category: "2d-wallpaper-types",
+    },
+  });
   const queryClient = useQueryClient();
+
+  const [subCategories, setSubCategories] = useState([]);
+  const [subSubCategories, setSubSubCategories] = useState([]);
+
+  const categoryValue = watch("category");
+  const subCategoryValue = watch("subCategory");
+
+  useEffect(() => {
+    if (categoryValue) {
+      const selectedCategory = categories.find(
+        (cat) => cat.name.toLowerCase().replace(/ /g, '-') === categoryValue
+      );
+      if (selectedCategory) {
+        setSubCategories(selectedCategory.subCategories);
+        setValue("subCategory", "");
+        setSubSubCategories([]);
+        setValue("subSubCategory", "");
+      }
+    } else {
+      setSubCategories([]);
+      setValue("subCategory", "");
+      setSubSubCategories([]);
+      setValue("subSubCategory", "");
+    }
+  }, [categoryValue, setValue]);
+
+  useEffect(() => {
+    if (subCategoryValue) {
+      const selectedSubCategory = subCategories.find(
+        (subCat) => subCat.name.toLowerCase().replace(/ /g, '-') === subCategoryValue
+      );
+      if (selectedSubCategory) {
+        setSubSubCategories(selectedSubCategory.items);
+        setValue("subSubCategory", "");
+      }
+    } else {
+      setSubSubCategories([]);
+      setValue("subSubCategory", "");
+    }
+  }, [subCategoryValue, subCategories, setValue]);
 
   const { mutate, isLoading } = useMutation({
     mutationFn: uploadWallpaper,
@@ -34,6 +80,8 @@ const UploadWallpaper = () => {
     formData.append("description", data.description);
     formData.append("price", data.price);
     formData.append("category", data.category);
+    formData.append("subCategory", data.subCategory);
+    formData.append("subSubCategory", data.subSubCategory);
     formData.append("dimension", data.dimension);
     formData.append("tags", data.tags);
     formData.append("image", data.image[0]);
@@ -90,6 +138,7 @@ const UploadWallpaper = () => {
             id="category"
             {...register("category", { required: "Category is required" })}
           >
+            <option value="">Select Category</option>
             {categories.map((cat) => (
               <option key={cat.name} value={cat.name.toLowerCase().replace(/ /g, '-')}>
                 {cat.name}
@@ -100,6 +149,44 @@ const UploadWallpaper = () => {
             <p className="error-message">{errors.category.message}</p>
           )}
         </div>
+        {subCategories.length > 0 && (
+          <div className="form-group">
+            <label htmlFor="subCategory">Sub Category</label>
+            <select
+              id="subCategory"
+              {...register("subCategory", { required: "Sub Category is required" })}
+            >
+              <option value="">Select Sub Category</option>
+              {subCategories.map((subCat) => (
+                <option
+                  key={subCat.name}
+                  value={subCat.name.toLowerCase().replace(/ /g, '-')}
+                >
+                  {subCat.name}
+                </option>
+              ))}
+            </select>
+            {errors.subCategory && (
+              <p className="error-message">{errors.subCategory.message}</p>
+            )}
+          </div>
+        )}
+        {subSubCategories.length > 0 && (
+          <div className="form-group">
+            <label htmlFor="subSubCategory">Sub Sub Category</label>
+            <select
+              id="subSubCategory"
+              {...register("subSubCategory")}
+            >
+              <option value="">Select Sub Sub Category</option>
+              {subSubCategories.map((item) => (
+                <option key={item} value={item.toLowerCase().replace(/ /g, '-')}>
+                  {item}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className="form-group">
           <label htmlFor="dimension">Dimension</label>
           <select

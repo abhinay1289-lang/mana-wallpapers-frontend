@@ -17,11 +17,31 @@ import {
   Select,
   InputLabel,
   Skeleton,
+  ListItemIcon,
+  ListItemText,
+  ListSubheader,
 } from "@mui/material";
 import {
   Search as SearchIcon,
   Download as DownloadIcon,
   ShoppingCart as CartIcon,
+  Brush,
+  CameraAlt,
+  Texture,
+  Title,
+  Animation,
+  ViewInAr,
+  ThreeDRotation,
+  Camera,
+  Business,
+  Landscape,
+  Pets,
+  Memory,
+  Theaters,
+  FilterVintage,
+  SportsEsports,
+  WbSunny,
+  Whatshot,
 } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -29,6 +49,26 @@ import { wallpaperService } from "../services/wallpaperService";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
 import { categories } from "../data/categories";
+
+const iconMap = {
+  Brush: <Brush />,
+  CameraAlt: <CameraAlt />,
+  Texture: <Texture />,
+  Title: <Title />,
+  Animation: <Animation />,
+  ViewInAr: <ViewInAr />,
+  ThreeDRotation: <ThreeDRotation />,
+  Camera: <Camera />,
+  Business: <Business />,
+  Landscape: <Landscape />,
+  Pets: <Pets />,
+  Memory: <Memory />,
+  Theaters: <Theaters />,
+  FilterVintage: <FilterVintage />,
+  SportsEsports: <SportsEsports />,
+  WbSunny: <WbSunny />,
+  Whatshot: <Whatshot />,
+};
 
 const CategoryPage = () => {
   const { slug } = useParams();
@@ -38,6 +78,31 @@ const CategoryPage = () => {
   const [dimensionFilter, setDimensionFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState(slug || "all");
   const { addToCart } = useCart();
+
+  const getCategoryNameBySlug = (slug) => {
+    if (!slug || slug === "all") {
+      return "All Wallpapers";
+    }
+    for (const mainCat of categories) {
+      const mainCatSlug = mainCat.name.toLowerCase().replace(/ /g, '-');
+      if (mainCatSlug === slug) {
+        return mainCat.name;
+      }
+      for (const subCat of mainCat.subCategories) {
+        const subCatSlug = subCat.name.toLowerCase().replace(/ /g, '-');
+        if (subCatSlug === slug) {
+          return subCat.name;
+        }
+        for (const item of subCat.items) {
+          const itemSlug = item.toLowerCase().replace(/ /g, '-');
+          if (itemSlug === slug) {
+            return item;
+          }
+        }
+      }
+    }
+    return "All Wallpapers";
+  };
 
   const { data: wallpapersData, isLoading } = useQuery({
     queryKey: [
@@ -65,7 +130,7 @@ const CategoryPage = () => {
     toast.success("Added to cart!");
   };
 
-  const categoryName = categories.find(c => c.name.toLowerCase().replace(/ /g, '-') === categoryFilter)?.name || "All Wallpapers"
+  const categoryName = getCategoryNameBySlug(categoryFilter);
 
   return (
     <Container maxWidth="xl" className="py-4 sm:py-8">
@@ -100,11 +165,29 @@ const CategoryPage = () => {
                 value={categoryFilter}
                 label="Category"
                 onChange={(e) => setCategoryFilter(e.target.value)}
+                renderValue={(selected) => getCategoryNameBySlug(selected)}
               >
                 <MenuItem value="all">All</MenuItem>
-                {categories.map(cat => (
-                    <MenuItem key={cat.name} value={cat.name.toLowerCase().replace(/ /g, '-')}>{cat.name}</MenuItem>
-                ))}
+                {categories.map(mainCat => {
+                  const items = [];
+                  items.push(<ListSubheader key={mainCat.name}>{mainCat.name}</ListSubheader>);
+                  mainCat.subCategories.forEach(subCat => {
+                    items.push(
+                      <MenuItem key={subCat.name} value={subCat.name.toLowerCase().replace(/ /g, '-')} >
+                        {iconMap[subCat.icon] && <ListItemIcon>{iconMap[subCat.icon]}</ListItemIcon>}
+                        <ListItemText primary={subCat.name} />
+                      </MenuItem>
+                    );
+                    subCat.items.forEach(item => {
+                      items.push(
+                        <MenuItem key={item} value={item.toLowerCase().replace(/ /g, '-')} style={{ paddingLeft: '3em' }}>
+                          <ListItemText primary={item} />
+                        </MenuItem>
+                      );
+                    });
+                  });
+                  return items;
+                })}
               </Select>
             </FormControl>
           </Grid>
@@ -212,7 +295,7 @@ const CategoryPage = () => {
                       color="primary"
                       className="font-bold mt-1"
                     >
-                      ${(wallpaper.priceCents / 100).toFixed(2)}
+                      ₹{wallpaper.priceCents}
                     </Typography>
                   )}
                 </CardContent>

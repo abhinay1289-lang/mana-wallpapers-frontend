@@ -1,12 +1,152 @@
 export const categories = [
-  { name: '2D Illustration', description: 'Anime, vector, watercolor; drawn characters, fantasy.' },
-  { name: '2D Photography', description: 'Nature, urban, minimalist; real landscapes, portraits.' },
-  { name: '2D Abstract', description: 'Geometric, gradient, retro; shapes, patterns.' },
-  { name: '2D Typography', description: 'Motivational, personalized; quotes, hand-lettered text.' },
-  { name: '2D Cartoons', description: 'Classic, modern; iconic cartoon figures.' },
-  { name: '3D Rendered Art', description: 'Sci-fi, fantasy, architectural; 3D modeled environments.' },
-  { name: '3D Models', description: 'Vehicles, game assets; detailed digital objects.' },
-  { name: '3D Virtual Photos', description: 'Game captures, simulation scenes; realistic virtual landscapes.' },
-  { name: 'Mixed Fan Art', description: 'Movies, games, anime; adapted character art.' },
-  { name: 'Mixed Spiritual', description: 'Mandalas, deity, temples; detailed religious motifs.' },
+  {
+    name: '2D Wallpaper Types',
+    subCategories: [
+      {
+        name: 'Illustration & Art',
+        icon: 'Brush',
+        items: [
+          'Flat illustrations',
+          'Vector graphics',
+          'Anime/manga art',
+          'Digital paintings',
+          'Watercolor or ink styles',
+        ],
+      },
+      {
+        name: 'Photography',
+        icon: 'CameraAlt',
+        items: [
+          'Landscapes',
+          'Cityscapes',
+          'Portraits',
+          'Macro photography',
+          'Wildlife and nature',
+        ],
+      },
+      {
+        name: 'Patterns & Abstract',
+        icon: 'Texture',
+        items: [
+          'Geometric designs',
+          'Minimalist backgrounds',
+          'Gradient/color blends',
+          'Retro/vintage patterns',
+        ],
+      },
+      {
+        name: 'Typography',
+        icon: 'Title',
+        items: ['Motivational quotes', 'Calligraphy', 'Lettering art'],
+      },
+      {
+        name: 'Cartoons & Comics',
+        icon: 'Animation',
+        items: ['Classic cartoon characters', 'Comic strip backgrounds'],
+      },
+    ],
+  },
+  {
+    name: '3D Wallpaper Types',
+    subCategories: [
+      {
+        name: 'Rendered Art',
+        icon: 'ViewInAr',
+        items: [
+          '3D scenes and environments',
+          'Fantasy landscapes',
+          'Sci-fi interiors/exteriors',
+        ],
+      },
+      {
+        name: '3D Models',
+        icon: 'ThreeDRotation',
+        items: [
+          'Vehicles, objects, or characters modeled with lighting/shading effects',
+          'Game-inspired 3D assets',
+        ],
+      },
+      {
+        name: 'Virtual Photography',
+        icon: 'Camera',
+        items: ['Screenshots from 3D games or simulations'],
+      },
+      {
+        name: 'Architectural Visualization',
+        icon: 'Business',
+        items: ['Realistic or concept building renders'],
+      },
+    ],
+  },
+  {
+    name: 'Other Popular Categories',
+    subCategories: [
+      {
+        name: 'Nature',
+        icon: 'Landscape',
+        items: ['Forests', 'Mountains', 'Beaches', 'Space'],
+      },
+      {
+        name: 'Animals',
+        icon: 'Pets',
+        items: ['Real animals', 'Cartoon animals', 'Fantasy creatures'],
+      },
+      {
+        name: 'Technology',
+        icon: 'Memory',
+        items: [
+          'Futuristic themes',
+          'Gadgets',
+          'Abstract logic board art',
+        ],
+      },
+      {
+        name: 'Fan Art',
+        icon: 'Theaters',
+        items: [
+          'Movies',
+          'TV shows',
+          'Celebrities',
+          'K-pop bands',
+          'Sports icons',
+        ],
+      },
+      {
+        name: 'Religious/Spiritual',
+        icon: 'FilterVintage',
+        items: [
+          'Mandalas',
+          'Deity illustrations',
+          'Temple scenes',
+          'Meditative imagery',
+        ],
+      },
+      {
+        name: 'Gaming & Anime',
+        icon: 'SportsEsports',
+        items: ['Game character art', 'Anime backgrounds', 'Iconic scenes'],
+      },
+      {
+        name: 'Seasonal',
+        icon: 'WbSunny',
+        items: [
+          'Holiday designs',
+          'Festival designs',
+          'Weather designs',
+          'Calendar-based designs',
+        ],
+      },
+      {
+        name: 'Aesthetic Trends',
+        icon: 'Whatshot',
+        items: [
+          'Vaporwave',
+          'Synthwave',
+          'Cyberpunk',
+          'Cottagecore',
+          'Dark mode',
+        ],
+      },
+    ],
+  },
 ];

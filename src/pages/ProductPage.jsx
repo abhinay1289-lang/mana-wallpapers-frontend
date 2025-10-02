@@ -140,7 +140,7 @@ const ProductPage = () => {
                     color="primary"
                     className="font-bold"
                   >
-                    ${(wallpaper.priceCents / 100).toFixed(2)}
+                    ₹{wallpaper.priceCents}
                   </Typography>
                 )}
               </Box>

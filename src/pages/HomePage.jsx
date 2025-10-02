@@ -43,7 +43,18 @@ const HomePage = () => {
 
   return (
     <Box>
-      <ThreeDBackground />
+      <Box
+        sx={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100vh",
+          zIndex: -1,
+        }}
+      >
+        <ThreeDBackground />
+      </Box>
       {/* Hero Section */}
       <Box className="relative text-white py-20 sm:py-32 md:py-40 text-center">
         <Container maxWidth="lg">
@@ -65,13 +76,20 @@ const HomePage = () => {
           Browse by Category
         </Typography>
 
-        <Grid container spacing={4}>
+        <Grid container spacing={4} style={{justifyContent: "space-between"}}>
           {categories.map((category) => (
             <Grid item xs={12} sm={6} md={3} key={category.name}>
               <Card
                 className="hover:shadow-lg transition-shadow cursor-pointer group transform hover:-translate-y-2"
                 component={Link}
                 to={`/category/${category.name.toLowerCase().replace(/ /g, '-')}`}
+                 sx={{
+                  transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+                  "&:hover": {
+                    transform: "scale(1.05)",
+                    boxShadow: "0 10px 20px rgba(0,0,0,0.2)",
+                  },
+                }}
               >
                 <CardMedia
                   component="img"
@@ -159,7 +177,7 @@ const HomePage = () => {
                             color="primary"
                             className="font-bold mt-1"
                           >
-                            ${(wallpaper.priceCents / 100).toFixed(2)}
+                            ₹{wallpaper.priceCents}
                           </Typography>
                         )}
                       </CardContent>

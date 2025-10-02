@@ -79,28 +79,28 @@ const Footer = () => {
             </Typography>
             <Box className="space-y-2">
               <Link
-                href="#"
+                href="/help-center"
                 color="inherit"
                 className="block text-gray-300 hover:text-white no-underline"
               >
                 Help Center
               </Link>
               <Link
-                href="#"
+                href="/contact-us"
                 color="inherit"
                 className="block text-gray-300 hover:text-white no-underline"
               >
                 Contact Us
               </Link>
               <Link
-                href="#"
+                href="/license-info"
                 color="inherit"
                 className="block text-gray-300 hover:text-white no-underline"
               >
                 License Info
               </Link>
               <Link
-                href="#"
+                href="/refund-policy"
                 color="inherit"
                 className="block text-gray-300 hover:text-white no-underline"
               >
@@ -116,28 +116,28 @@ const Footer = () => {
             </Typography>
             <Box className="space-y-2">
               <Link
-                href="#"
+                href="/privacy-policy"
                 color="inherit"
                 className="block text-gray-300 hover:text-white no-underline"
               >
                 Privacy Policy
               </Link>
               <Link
-                href="#"
+                href="/terms-of-service"
                 color="inherit"
                 className="block text-gray-300 hover:text-white no-underline"
               >
                 Terms of Service
               </Link>
               <Link
-                href="#"
+                href="/cookie-policy"
                 color="inherit"
                 className="block text-gray-300 hover:text-white no-underline"
               >
                 Cookie Policy
               </Link>
               <Link
-                href="#"
+                href="/dmca"
                 color="inherit"
                 className="block text-gray-300 hover:text-white no-underline"
               >

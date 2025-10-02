@@ -99,9 +99,7 @@ const CartPage = () => {
                         color="primary"
                         className="font-bold"
                       >
-                        {item.isFree
-                          ? "FREE"
-                          : `$${(item.priceCents / 100).toFixed(2)}`}
+                        {item.isFree ? "FREE" : `₹${item.priceCents}`}
                       </Typography>
                     </Grid>
 
@@ -176,7 +174,7 @@ const CartPage = () => {
               <Box className="space-y-2">
                 <Box className="flex justify-between">
                   <Typography>Items ({items.length})</Typography>
-                  <Typography>${total.toFixed(2)}</Typography>
+                  <Typography>₹{total}</Typography>
                 </Box>
                 <Box className="flex justify-between">
                   <Typography>Shipping</Typography>
@@ -188,7 +186,7 @@ const CartPage = () => {
                     Total
                   </Typography>
                   <Typography variant="h6" className="font-bold">
-                    ${total.toFixed(2)}
+                    ₹{total}
                   </Typography>
                 </Box>
               </Box>

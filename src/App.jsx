@@ -34,6 +34,14 @@ import UploadWallpaper from "./pages/UploadWallpaper";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import WallpaperManagement from "./pages/WallpaperManagement";
+import HelpCenter from "./pages/HelpCenter";
+import ContactUs from "./pages/ContactUs";
+import LicenseInfo from "./pages/LicenseInfo";
+import RefundPolicy from "./pages/RefundPolicy";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import CookiePolicy from "./pages/CookiePolicy";
+import DMCA from "./pages/DMCA";
 
 import "./styles/globals.css";
 
@@ -64,6 +72,7 @@ const theme = createTheme({
   },
   typography: {
     fontFamily: '"Poppins", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontSize: 13,
     h1: { fontWeight: 700 },
     h2: { fontWeight: 600 },
     h3: { fontWeight: 600 },
@@ -116,6 +125,14 @@ const App = () => {
                     <Route path="/category/:slug" element={<CategoryPage />} />
                     <Route path="/wallpaper/:id" element={<ProductPage />} />
                     <Route path="/search/:searchTerm" element={<SearchPage />} />
+                    <Route path="/help-center" element={<HelpCenter />} />
+                    <Route path="/contact-us" element={<ContactUs />} />
+                    <Route path="/license-info" element={<LicenseInfo />} />
+                    <Route path="/refund-policy" element={<RefundPolicy />} />
+                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                    <Route path="/terms-of-service" element={<TermsOfService />} />
+                    <Route path="/cookie-policy" element={<CookiePolicy />} />
+                    <Route path="/dmca" element={<DMCA />} />
 
                     {/* Buyer Routes */}
                     <Route
