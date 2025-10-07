@@ -3,7 +3,8 @@ import toast from "react-hot-toast";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
-  "https://mana-wallpapers-backend.onrender.com/api";
+  // "https://mana-wallpapers-backend.onrender.com/api";
+  "http://localhost:8080/api";
 
 // Create axios instance
 const api = axios.create({
@@ -12,6 +13,40 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+export const axiosClient = axios.create({
+  // baseURL: "https://mana-wallpapers-backend.onrender.com/api",
+  baseURL: "http://localhost:8080/api",
+});
+
+axiosClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+axiosClient.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (
+      error.response?.status === 401 &&
+      window.location.pathname !== "/login"
+    ) {
+      redirectToLogin();
+      return;
+    }
+    return Promise.reject(error);
+  }
+);
+
+export function redirectToLogin() {
+  setTimeout(() => {
+    localStorage.clear();
+    window.location.href = `/login`;
+  }, 500);
+}
 
 // Request interceptor to add auth token
 api.interceptors.request.use(

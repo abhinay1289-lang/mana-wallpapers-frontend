@@ -42,6 +42,8 @@ const RegisterPage = () => {
     formState: { errors },
   } = useForm();
 
+  // const handleSubmit = () => {}
+
   const password = watch("password");
 
   const onSubmit = async (data) => {
@@ -181,6 +183,17 @@ const RegisterPage = () => {
               startAdornment: (
                 <InputAdornment position="start">
                   <LockIcon color="action" />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
                 </InputAdornment>
               ),
             }}

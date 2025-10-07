@@ -19,15 +19,18 @@ import {
 } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+// import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../store/thunks/authThunk";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const dispatch = useDispatch();
 
-  const { login } = useAuth();
+  // const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -35,20 +38,19 @@ const LoginPage = () => {
 
   const {
     register,
-    handleSubmit,
+    // handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const onSubmit = async (data) => {
+  const handleSubmit = () => {
     setIsLoading(true);
     setError("");
 
     try {
-      await login(data).then((res) => {
-        localStorage.setItem("user", JSON.stringify(res.data));
+      dispatch(login(data)).then(() => {
+        toast.success("Login successful!");
+        navigate(from, { replace: true });
       });
-      toast.success("Login successful!");
-      navigate(from, { replace: true });
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Login failed";
       setError(errorMessage);
@@ -80,7 +82,7 @@ const LoginPage = () => {
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <TextField
             fullWidth
             label="Email Address"
