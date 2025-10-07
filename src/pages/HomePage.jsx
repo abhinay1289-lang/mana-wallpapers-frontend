@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import {
   Container,
   Typography,
@@ -18,32 +18,38 @@ import {
   ShoppingCart as CartIcon,
   CloudUpload as UploadIcon,
 } from "@mui/icons-material";
-import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { wallpaperService } from "../services/wallpaperService";
-import { useAuth } from "../context/AuthContext";
-import { useCart } from "../context/CartContext";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchWallpapers } from "../features/thunks/wallpapersThunks";
+import { addToCart } from "../features/thunks/cartThunks";
 import toast from "react-hot-toast";
 import ThreeDBackground from "../components/common/ThreeDBackground";
 import { categories } from "../data/categories";
 
 const HomePage = () => {
-  const { user } = useAuth();
-  const { addToCart } = useCart();
+  const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const { items: wallpapers, status: wallpapersStatus } = useSelector(
+    (state) => state.wallpapers
+  );
 
-  const { data: wallpapersData, isLoading } = useQuery({
-    queryKey: ["wallpapers", { page: 0, size: 12 }],
-    queryFn: () => wallpaperService.getAllWallpapers({ page: 0, size: 12 }),
-  });
+  useEffect(() => {
+    dispatch(fetchWallpapers({ page: 0, size: 12, sortBy: 'popularity-desc' }));
+  }, [dispatch]);
 
   const handleAddToCart = (wallpaper) => {
-    addToCart(wallpaper);
+    dispatch(addToCart(wallpaper));
     toast.success("Added to cart!");
   };
 
+  const isLoading = wallpapersStatus === "loading";
+
+  // TODO: This should be fetched from the server or a config file
+  const INR_EXCHANGE_RATE = 83;
+
   return (
     <Box>
-      <Box
+      {/* <Box
         sx={{
           position: "fixed",
           top: 0,
@@ -54,7 +60,7 @@ const HomePage = () => {
         }}
       >
         <ThreeDBackground />
-      </Box>
+      </Box> */}
       {/* Hero Section */}
       <Box className="relative text-white py-20 sm:py-32 md:py-40 text-center">
         <Container maxWidth="lg">
@@ -76,15 +82,16 @@ const HomePage = () => {
           Browse by Category
         </Typography>
 
-        <Grid container spacing={4} style={{justifyContent: "space-between"}}>
+        <Grid container spacing={4} style={{ justifyContent: "space-between" }}>
           {categories.map((category) => (
             <Grid item xs={12} sm={6} md={3} key={category.name}>
               <Card
                 className="hover:shadow-lg transition-shadow cursor-pointer group transform hover:-translate-y-2"
                 component={Link}
-                to={`/category/${category.name.toLowerCase().replace(/ /g, '-')}`}
-                 sx={{
-                  transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+                to={`/category/${category.name.toLowerCase().replace(/ /g, "-")}`}
+                sx={{
+                  transition:
+                    "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
                   "&:hover": {
                     transform: "scale(1.05)",
                     boxShadow: "0 10px 20px rgba(0,0,0,0.2)",
@@ -137,7 +144,7 @@ const HomePage = () => {
                     </Card>
                   </Grid>
                 ))
-              : wallpapersData?.data?.content?.map((wallpaper) => (
+              : wallpapers?.data?.content?.map((wallpaper) => (
                   <Grid item xs={12} sm={6} md={3} key={wallpaper.id}>
                     <Card className="hover:shadow-lg transition-shadow group transform hover:-translate-y-2">
                       <Box className="relative overflow-hidden">
@@ -177,7 +184,7 @@ const HomePage = () => {
                             color="primary"
                             className="font-bold mt-1"
                           >
-                            ₹{wallpaper.priceCents}
+                           {`₹${((wallpaper.priceCents / 100) * INR_EXCHANGE_RATE).toFixed(2)}`}
                           </Typography>
                         )}
                       </CardContent>

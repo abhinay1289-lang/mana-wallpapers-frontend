@@ -16,12 +16,17 @@ import {
   Remove as RemoveIcon,
 } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
-import { useCart } from "../context/CartContext";
-import { useAuth } from "../context/AuthContext";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  updateQuantity,
+  removeFromCart,
+  clearCart,
+} from "../features/thunks/cartThunks";
 
 const CartPage = () => {
-  const { items, total, updateQuantity, removeFromCart, clearCart } = useCart();
-  const { isAuthenticated } = useAuth();
+  const { items, total } = useSelector((state) => state.cart);
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleProceedToCheckout = () => {
@@ -109,7 +114,9 @@ const CartPage = () => {
                         <IconButton
                           size="small"
                           onClick={() =>
-                            updateQuantity(item.id, item.quantity - 1)
+                            dispatch(
+                              updateQuantity({ id: item.id, quantity: item.quantity - 1 })
+                            )
                           }
                         >
                           <RemoveIcon />
@@ -124,13 +131,15 @@ const CartPage = () => {
                           sx={{ width: 40, mx: 1 }}
                           onChange={(e) => {
                             const value = parseInt(e.target.value) || 1;
-                            updateQuantity(item.id, value);
+                            dispatch(updateQuantity({ id: item.id, quantity: value }));
                           }}
                         />
                         <IconButton
                           size="small"
                           onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
+                            dispatch(
+                              updateQuantity({ id: item.id, quantity: item.quantity + 1 })
+                            )
                           }
                         >
                           <AddIcon />
@@ -142,7 +151,7 @@ const CartPage = () => {
                     <Grid item xs={12} sm={1} className="text-right">
                       <IconButton
                         color="error"
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => dispatch(removeFromCart(item.id))}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -153,7 +162,11 @@ const CartPage = () => {
             ))}
 
             <Box className="flex justify-between mt-4">
-              <Button variant="outlined" onClick={clearCart} color="error">
+              <Button
+                variant="outlined"
+                onClick={() => dispatch(clearCart())}
+                color="error"
+              >
                 Clear Cart
               </Button>
               <Button variant="outlined" component={Link} to="/">

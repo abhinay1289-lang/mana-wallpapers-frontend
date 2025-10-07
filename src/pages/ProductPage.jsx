@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import {
   Container,
   Grid,
@@ -18,31 +19,31 @@ import {
   Favorite as FavoriteIcon,
 } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { wallpaperService } from "../services/wallpaperService";
-import { downloadService } from "../services/downloadService";
-import { useAuth } from "../context/AuthContext";
-import { useCart } from "../context/CartContext";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchWallpaperById,
+  createFreeDownload,
+} from "../features/thunks/wallpapersThunks";
+import { addToCart } from "../features/thunks/cartThunks";
 import { categories } from "../data/categories";
 import toast from "react-hot-toast";
 
 const ProductPage = () => {
   const { id } = useParams();
-  const { isAuthenticated } = useAuth();
-  const { addToCart } = useCart();
-  const [isDownloading, setIsDownloading] = useState(false);
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
   const {
-    data: wallpaperData,
-    isLoading,
+    selected: wallpaper,
+    status,
     error,
-  } = useQuery({
-    queryKey: ["wallpaper", id],
-    queryFn: () => wallpaperService.getWallpaperById(id),
-    enabled: !!id,
-  });
+  } = useSelector((state) => state.wallpapers);
 
-  const wallpaper = wallpaperData?.data;
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchWallpaperById(id));
+    }
+  }, [dispatch, id]);
 
   const handleFreeDownload = async () => {
     if (!isAuthenticated) {
@@ -50,23 +51,17 @@ const ProductPage = () => {
       return;
     }
 
-    setIsDownloading(true);
     try {
-      const response = await downloadService.createFreeDownload(wallpaper.id);
-      const downloadUrl = response.data;
-
-      // Open download URL in new tab
-      window.open(downloadUrl, "_blank");
+      const downloadUrl = await dispatch(createFreeDownload(wallpaper.data.id)).unwrap();
+      window.open(downloadUrl.data, "_blank");
       toast.success("Download started!");
     } catch (error) {
-      toast.error("Failed to download wallpaper");
-    } finally {
-      setIsDownloading(false);
+      toast.error(error.message || "Failed to download wallpaper");
     }
   };
 
   const handleAddToCart = () => {
-    addToCart(wallpaper);
+    dispatch(addToCart(wallpaper.data));
     toast.success("Added to cart!");
   };
 
@@ -75,9 +70,14 @@ const ProductPage = () => {
     toast.success("Link copied to clipboard!");
   };
 
-  const categoryName = categories.find(c => c.name.toLowerCase().replace(/ /g, '-') === wallpaper?.category)?.name || wallpaper?.category;
+  const categoryName =
+    categories.find(
+      (c) =>
+        c.name.toLowerCase().replace(/ /g, "-'") ===
+        wallpaper?.data?.category
+    )?.name || wallpaper?.data?.category;
 
-  if (isLoading) {
+  if (status === "loading") {
     return (
       <Container maxWidth="lg" className="py-4 sm:py-8">
         <Grid container spacing={{ xs: 2, md: 6 }}>
@@ -94,11 +94,11 @@ const ProductPage = () => {
     );
   }
 
-  if (error || !wallpaper) {
+  if (status === "failed" || !wallpaper.data) {
     return (
       <Container maxWidth="lg" className="py-8">
         <Typography variant="h5" color="error" className="text-center">
-          Wallpaper not found
+          {error?.message || "Wallpaper not found"}
         </Typography>
       </Container>
     );
@@ -113,10 +113,10 @@ const ProductPage = () => {
             <CardMedia
               component="img"
               image={
-                wallpaper.thumbnailUrl ||
+                wallpaper.data.imageUrl ||
                 "https://via.placeholder.com/800x600?text=Wallpaper"
               }
-              alt={wallpaper.title}
+              alt={wallpaper.data.title}
               className="w-full h-auto object-cover"
             />
           </Card>
@@ -127,12 +127,16 @@ const ProductPage = () => {
           <Box className="space-y-4">
             {/* Title and Price */}
             <Box>
-              <Typography variant="h4" component="h1" className="font-bold mb-2">
-                {wallpaper.title}
+              <Typography
+                variant="h4"
+                component="h1"
+                className="font-bold mb-2"
+              >
+                {wallpaper.data.title}
               </Typography>
 
               <Box className="flex items-center gap-2 mb-4">
-                {wallpaper.isFree ? (
+                {wallpaper.data.isFree ? (
                   <Chip label="FREE" color="success" size="medium" />
                 ) : (
                   <Typography
@@ -140,7 +144,7 @@ const ProductPage = () => {
                     color="primary"
                     className="font-bold"
                   >
-                    ₹{wallpaper.priceCents}
+                    {`$${(wallpaper.data.priceCents / 100).toFixed(2)}`}
                   </Typography>
                 )}
               </Box>
@@ -150,7 +154,7 @@ const ProductPage = () => {
                 color="text.secondary"
                 className="mb-4"
               >
-                {wallpaper.description}
+                {wallpaper.data.description}
               </Typography>
             </Box>
 
@@ -159,16 +163,16 @@ const ProductPage = () => {
               <Typography variant="body2" color="text.secondary">
                 <strong>Category:</strong> {categoryName}
               </Typography>
-               <Typography variant="body2" color="text.secondary">
-                <strong>Dimension:</strong> {wallpaper.dimension}
+              <Typography variant="body2" color="text.secondary">
+                <strong>Dimension:</strong> {wallpaper.data.dimension}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                <strong>Resolution:</strong> {wallpaper.resolution}
+                <strong>Resolution:</strong> {wallpaper.data.resolution}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                <strong>Format:</strong> {wallpaper.format}
+                <strong>Format:</strong> {wallpaper.data.format}
               </Typography>
-              {wallpaper.tags && wallpaper.tags.length > 0 && (
+              {wallpaper.data.tags && wallpaper.data.tags.length > 0 && (
                 <Box>
                   <Typography
                     variant="body2"
@@ -178,7 +182,7 @@ const ProductPage = () => {
                     <strong>Tags:</strong>
                   </Typography>
                   <Box className="flex flex-wrap gap-1">
-                    {wallpaper.tags.map((tag, index) => (
+                    {wallpaper.data.tags.map((tag, index) => (
                       <Chip
                         key={index}
                         label={tag}
@@ -193,16 +197,18 @@ const ProductPage = () => {
 
             {/* Action Buttons */}
             <Box className="space-y-3">
-              {wallpaper.isFree ? (
+              {wallpaper.data.isFree ? (
                 <Button
                   fullWidth
                   variant="contained"
                   size="large"
                   startIcon={<DownloadIcon />}
                   onClick={handleFreeDownload}
-                  disabled={isDownloading}
+                  disabled={status === "loading"}
                 >
-                  {isDownloading ? "Downloading..." : "Download Free"}
+                  {status === "loading"
+                    ? "Downloading..."
+                    : "Download Free"}
                 </Button>
               ) : (
                 <Button
@@ -228,13 +234,13 @@ const ProductPage = () => {
             </Box>
 
             {/* License Info */}
-            {wallpaper.licenseText && (
+            {wallpaper.data.licenseText && (
               <Box className="p-4 bg-gray-50 rounded-lg">
                 <Typography variant="body2" className="font-semibold mb-1">
                   License:
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {wallpaper.licenseText}
+                  {wallpaper.data.licenseText}
                 </Typography>
               </Box>
             )}

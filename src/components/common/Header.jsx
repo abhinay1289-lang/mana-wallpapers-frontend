@@ -12,6 +12,9 @@ import {
   List,
   ListItem,
   ListItemText,
+  Avatar,
+  Divider,
+  Box,
 } from "@mui/material";
 import {
   ShoppingCart as ShoppingCartIcon,
@@ -25,17 +28,20 @@ import {
   Settings as SettingsIcon,
   Description as ReportsIcon,
   PhotoLibrary as WallpaperManagementIcon,
+  Login as LoginIcon,
+  PersonAdd as PersonAddIcon,
 } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { useCart } from "../../context/CartContext";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../../features/thunks/authThunks";
 import Search from "./Search";
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, isAuthenticated, logout } = useAuth();
-  const { getItemCount } = useCart();
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { items } = useSelector((state) => state.cart);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleMenuOpen = (event) => {
@@ -47,7 +53,7 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    logout();
+    dispatch(logout());
     handleMenuClose();
     navigate("/");
   };
@@ -56,7 +62,7 @@ const Header = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
-  const cartItemCount = getItemCount();
+  const cartItemCount = items.length;
 
   const mobileMenuItems = (
     <div
@@ -78,6 +84,19 @@ const Header = () => {
         <ListItem button component={Link} to="/category/technology">
           <ListItemText primary="Technology" />
         </ListItem>
+        <Divider />
+        {!isAuthenticated && (
+          <>
+            <ListItem button component={Link} to="/login">
+              <LoginIcon className="mr-2" />
+              <ListItemText primary="Login" />
+            </ListItem>
+            <ListItem button component={Link} to="/register">
+              <PersonAddIcon className="mr-2" />
+              <ListItemText primary="Register" />
+            </ListItem>
+          </>
+        )}
       </List>
     </div>
   );
@@ -183,101 +202,130 @@ const Header = () => {
                   onClose={handleMenuClose}
                   classes={{ paper: "bg-secondary-color text-text-color" }}
                 >
-                  {user?.role === "ADMIN" ? (
-                    [
-                      <MenuItem
-                        key="dashboard"
-                        onClick={() => {
-                          navigate("/admin");
-                          handleMenuClose();
-                        }}
-                      >
-                        <DashboardIcon className="mr-2" />
-                        Dashboard
-                      </MenuItem>,
-                      <MenuItem
-                        key="wallpaper-management"
-                        onClick={() => {
-                          navigate("/admin/wallpapers");
-                          handleMenuClose();
-                        }}
-                      >
-                        <WallpaperManagementIcon className="mr-2" />
-                        Wallpaper Management
-                      </MenuItem>,
-                      <MenuItem
-                        key="user-management"
-                        onClick={() => {
-                          navigate("/admin/users");
-                          handleMenuClose();
-                        }}
-                      >
-                        <PeopleIcon className="mr-2" />
-                        User Management
-                      </MenuItem>,
-                      <MenuItem
-                        key="upload-wallpaper"
-                        onClick={() => {
-                          navigate("/admin/upload-wallpaper");
-                          handleMenuClose();
-                        }}
-                      >
-                        <CloudUploadIcon className="mr-2" />
-                        Upload Wallpaper
-                      </MenuItem>,
-                      <MenuItem
-                        key="analytics"
-                        onClick={() => {
-                          navigate("/admin/analytics");
-                          handleMenuClose();
-                        }}
-                      >
-                        <BarChartIcon className="mr-2" />
-                        Analytics
-                      </MenuItem>,
-                      <MenuItem
-                        key="reports"
-                        onClick={() => {
-                          navigate("/admin/reports");
-                          handleMenuClose();
-                        }}
-                      >
-                        <ReportsIcon className="mr-2" />
-                        Reports
-                      </MenuItem>,
-                      <MenuItem
-                        key="settings"
-                        onClick={() => {
-                          navigate("/admin/settings");
-                          handleMenuClose();
-                        }}
-                      >
-                        <SettingsIcon className="mr-2" />
-                        Settings
-                      </MenuItem>,
-                      <MenuItem key="logout" onClick={handleLogout}>
-                        <LogoutIcon className="mr-2" />
-                        Logout
-                      </MenuItem>,
-                    ]
-                  ) : (
-                    [
-                      <MenuItem
-                        key="dashboard"
-                        onClick={() => {
-                          navigate("/buyer/dashboard");
-                          handleMenuClose();
-                        }}
-                      >
-                        <DashboardIcon className="mr-2" />
-                        Dashboard
-                      </MenuItem>,
-                      <MenuItem key="logout" onClick={handleLogout}>
-                        <LogoutIcon className="mr-2" />
-                        Logout
-                      </MenuItem>,
-                    ]
-                  )}
+                  <Box sx={{ p: 2, minWidth: 280 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                      <Avatar
+                        alt={user.name}
+                        src={user.profilePicture}
+                        sx={{ width: 56, height: 56, mr: 2 }}
+                      />
+                      <Box>
+                        <Typography variant="h6" sx={{ color: "text.primary" }}>
+                          {user.name}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: "text.secondary" }}
+                        >
+                          {user.email}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Divider />
+                  </Box>
+                  {user?.role === "ADMIN"
+                    ? [
+                        <MenuItem
+                          key="dashboard"
+                          onClick={() => {
+                            navigate("/admin");
+                            handleMenuClose();
+                          }}
+                        >
+                          <DashboardIcon className="mr-2" />
+                          Dashboard
+                        </MenuItem>,
+                        <MenuItem
+                          key="wallpaper-management"
+                          onClick={() => {
+                            navigate("/admin/wallpapers");
+                            handleMenuClose();
+                          }}
+                        >
+                          <WallpaperManagementIcon className="mr-2" />
+                          Wallpaper Management
+                        </MenuItem>,
+                        <MenuItem
+                          key="user-management"
+                          onClick={() => {
+                            navigate("/admin/users");
+                            handleMenuClose();
+                          }}
+                        >
+                          <PeopleIcon className="mr-2" />
+                          User Management
+                        </MenuItem>,
+                        <MenuItem
+                          key="upload-wallpaper"
+                          onClick={() => {
+                            navigate("/admin/upload-wallpaper");
+                            handleMenuClose();
+                          }}
+                        >
+                          <CloudUploadIcon className="mr-2" />
+                          Upload Wallpaper
+                        </MenuItem>,
+                        <MenuItem
+                          key="analytics"
+                          onClick={() => {
+                            navigate("/admin/analytics");
+                            handleMenuClose();
+                          }}
+                        >
+                          <BarChartIcon className="mr-2" />
+                          Analytics
+                        </MenuItem>,
+                        <MenuItem
+                          key="reports"
+                          onClick={() => {
+                            navigate("/admin/reports");
+                            handleMenuClose();
+                          }}
+                        >
+                          <ReportsIcon className="mr-2" />
+                          Reports
+                        </MenuItem>,
+                        <MenuItem
+                          key="settings"
+                          onClick={() => {
+                            navigate("/admin/settings");
+                            handleMenuClose();
+                          }}
+                        >
+                          <SettingsIcon className="mr-2" />
+                          Settings
+                        </MenuItem>,
+                        <MenuItem key="logout" onClick={handleLogout}>
+                          <LogoutIcon className="mr-2" />
+                          Logout
+                        </MenuItem>,
+                      ]
+                    : [
+                        <MenuItem
+                          key="dashboard"
+                          onClick={() => {
+                            navigate("/buyer/dashboard");
+                            handleMenuClose();
+                          }}
+                        >
+                          <DashboardIcon className="mr-2" />
+                          Dashboard
+                        </MenuItem>,
+                        <MenuItem
+                          key="profile"
+                          onClick={() => {
+                            navigate("/buyer/profile");
+                            handleMenuClose();
+                          }}
+                        >
+                          <AccountCircleIcon className="mr-2" />
+                          Profile
+                        </MenuItem>,
+                        <MenuItem key="logout" onClick={handleLogout}>
+                          <LogoutIcon className="mr-2" />
+                          Logout
+                        </MenuItem>,
+                      ]}
                 </Menu>
               </>
             ) : (

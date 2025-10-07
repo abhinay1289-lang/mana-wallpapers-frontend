@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import {
   Container,
   Grid,
@@ -21,38 +22,41 @@ import {
   Receipt as ReceiptIcon,
   History as HistoryIcon,
 } from "@mui/icons-material";
-import { useQuery } from "@tanstack/react-query";
-import { paymentService } from "../services/paymentService";
-import { downloadService } from "../services/downloadService";
-import { useAuth } from "../context/AuthContext";
+import { useDispatch, useSelector } from "react-redux";
+import { getOrderHistory } from "../features/thunks/paymentThunks";
+import { getUserDownloads } from "../features/thunks/downloadThunks";
+import { generateDownloadUrl } from "../features/thunks/downloadThunks";
 
 const BuyerDashboard = () => {
   const [tabValue, setTabValue] = useState(0);
-  const { user } = useAuth();
+  const { user } = useSelector((state) => state.auth);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const dispatch = useDispatch();
 
-  const { data: ordersData, isLoading: ordersLoading } = useQuery({
-    queryKey: ["orders"],
-    queryFn: () => paymentService.getOrderHistory(),
-  });
+  const { orders, status: ordersStatus } = useSelector((state) => state.payment);
+  const { items: downloads, status: downloadsStatus } = useSelector(
+    (state) => state.downloads
+  );
 
-  const { data: downloadsData, isLoading: downloadsLoading } = useQuery({
-    queryKey: ["downloads"],
-    queryFn: () => downloadService.getUserDownloads(),
-  });
+  useEffect(() => {
+    dispatch(getOrderHistory());
+    dispatch(getUserDownloads());
+  }, [dispatch]);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
 
-  const handleDownload = async (token) => {
-    try {
-      const response = await downloadService.generateDownloadUrl(token);
-      window.open(response.data, "_blank");
-    } catch (error) {
-      console.error("Download failed:", error);
-    }
+  const handleDownload = (token) => {
+    dispatch(generateDownloadUrl(token))
+      .unwrap()
+      .then((response) => {
+        window.open(response.data, "_blank");
+      })
+      .catch((error) => {
+        console.error("Download failed:", error);
+      });
   };
 
   return (
@@ -85,11 +89,11 @@ const BuyerDashboard = () => {
               <Typography variant="h6" className="font-semibold mb-4">
                 Recent Orders
               </Typography>
-              {ordersLoading ? (
+              {ordersStatus === "loading" ? (
                 <Typography>Loading orders...</Typography>
-              ) : ordersData?.data?.content?.length > 0 ? (
+              ) : orders?.data?.content?.length > 0 ? (
                 <List disablePadding>
-                  {ordersData.data.content.map((order) => (
+                  {orders.data.content.map((order) => (
                     <ListItem
                       key={order.id}
                       className="flex flex-col sm:flex-row border-b py-4"
@@ -121,11 +125,11 @@ const BuyerDashboard = () => {
               <Typography variant="h6" className="font-semibold mb-4">
                 Available Downloads
               </Typography>
-              {downloadsLoading ? (
+              {downloadsStatus === "loading" ? (
                 <Typography>Loading downloads...</Typography>
-              ) : downloadsData?.data?.length > 0 ? (
+              ) : downloads?.data?.length > 0 ? (
                 <List disablePadding>
-                  {downloadsData.data.map((download) => (
+                  {downloads.data.map((download) => (
                     <ListItem
                       key={download.id}
                       className="flex flex-col sm:flex-row border-b py-4"

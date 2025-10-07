@@ -1,9 +1,9 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useSelector } from "react-redux";
 import { Box, CircularProgress } from "@mui/material";
 
 const ProtectedRoute = ({ children, requiredRole }) => {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isAuthenticated, isLoading, user } = useSelector((state) => state.auth);
   const location = useLocation();
 
   if (isLoading) {

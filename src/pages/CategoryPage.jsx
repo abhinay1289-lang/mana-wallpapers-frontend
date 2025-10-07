@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import {
   Container,
   Grid,
@@ -44,9 +45,9 @@ import {
   Whatshot,
 } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { wallpaperService } from "../services/wallpaperService";
-import { useCart } from "../context/CartContext";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchWallpapers } from "../features/thunks/wallpapersThunks";
+import { addToCart } from "../features/thunks/cartThunks";
 import toast from "react-hot-toast";
 import { categories } from "../data/categories";
 
@@ -72,29 +73,59 @@ const iconMap = {
 
 const CategoryPage = () => {
   const { slug } = useParams();
+  const dispatch = useDispatch();
+  const {
+    items: wallpapers,
+    status: wallpapersStatus,
+    error,
+  } = useSelector((state) => state.wallpapers);
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortBy, setSortBy] = useState("createdAt-desc");
   const [priceFilter, setPriceFilter] = useState("");
   const [dimensionFilter, setDimensionFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState(slug || "all");
-  const { addToCart } = useCart();
+
+  useEffect(() => {
+    setCategoryFilter(slug || "all");
+  }, [slug]);
+
+  useEffect(() => {
+    const params = {
+      category: categoryFilter === "all" ? undefined : categoryFilter,
+      q: searchTerm || undefined,
+      sortBy,
+      free: priceFilter === "" ? undefined : priceFilter === "true",
+      dimension: dimensionFilter === "" ? undefined : dimensionFilter,
+      page: 0,
+      size: 24,
+    };
+    dispatch(fetchWallpapers(params));
+  }, [
+    dispatch,
+    categoryFilter,
+    searchTerm,
+    sortBy,
+    priceFilter,
+    dimensionFilter,
+  ]);
 
   const getCategoryNameBySlug = (slug) => {
     if (!slug || slug === "all") {
       return "All Wallpapers";
     }
     for (const mainCat of categories) {
-      const mainCatSlug = mainCat.name.toLowerCase().replace(/ /g, '-');
+      const mainCatSlug = mainCat.name.toLowerCase().replace(/ /g, "-'");
       if (mainCatSlug === slug) {
         return mainCat.name;
       }
       for (const subCat of mainCat.subCategories) {
-        const subCatSlug = subCat.name.toLowerCase().replace(/ /g, '-');
+        const subCatSlug = subCat.name.toLowerCase().replace(/ /g, "-'");
         if (subCatSlug === slug) {
           return subCat.name;
         }
         for (const item of subCat.items) {
-          const itemSlug = item.toLowerCase().replace(/ /g, '-');
+          const itemSlug = item.toLowerCase().replace(/ /g, "-'");
           if (itemSlug === slug) {
             return item;
           }
@@ -104,33 +135,14 @@ const CategoryPage = () => {
     return "All Wallpapers";
   };
 
-  const { data: wallpapersData, isLoading } = useQuery({
-    queryKey: [
-      "wallpapers",
-      categoryFilter,
-      searchTerm,
-      sortBy,
-      priceFilter,
-      dimensionFilter,
-    ],
-    queryFn: () =>
-      wallpaperService.getAllWallpapers({
-        category: categoryFilter === "all" ? undefined : categoryFilter,
-        q: searchTerm || undefined,
-        sortBy,
-        free: priceFilter === "" ? undefined : priceFilter === "true",
-        dimension: dimensionFilter === "" ? undefined : dimensionFilter,
-        page: 0,
-        size: 24,
-      }),
-  });
-
   const handleAddToCart = (wallpaper) => {
-    addToCart(wallpaper);
+    dispatch(addToCart(wallpaper));
     toast.success("Added to cart!");
   };
 
   const categoryName = getCategoryNameBySlug(categoryFilter);
+  const isLoading = wallpapersStatus === "loading";
+  const isError = wallpapersStatus === "failed";
 
   return (
     <Container maxWidth="xl" className="py-4 sm:py-8">
@@ -159,7 +171,7 @@ const CategoryPage = () => {
           </Grid>
 
           <Grid item xs={12} sm={6} md={2}>
-             <FormControl fullWidth>
+            <FormControl fullWidth>
               <InputLabel>Category</InputLabel>
               <Select
                 value={categoryFilter}
@@ -168,19 +180,32 @@ const CategoryPage = () => {
                 renderValue={(selected) => getCategoryNameBySlug(selected)}
               >
                 <MenuItem value="all">All</MenuItem>
-                {categories.map(mainCat => {
+                {categories.map((mainCat) => {
                   const items = [];
-                  items.push(<ListSubheader key={mainCat.name}>{mainCat.name}</ListSubheader>);
-                  mainCat.subCategories.forEach(subCat => {
+                  items.push(
+                    <ListSubheader key={mainCat.name}>
+                      {mainCat.name}
+                    </ListSubheader>
+                  );
+                  mainCat.subCategories.forEach((subCat) => {
                     items.push(
-                      <MenuItem key={subCat.name} value={subCat.name.toLowerCase().replace(/ /g, '-')} >
-                        {iconMap[subCat.icon] && <ListItemIcon>{iconMap[subCat.icon]}</ListItemIcon>}
+                      <MenuItem
+                        key={subCat.name}
+                        value={subCat.name.toLowerCase().replace(/ /g, "-'")}
+                      >
+                        {iconMap[subCat.icon] && (
+                          <ListItemIcon>{iconMap[subCat.icon]}</ListItemIcon>
+                        )}
                         <ListItemText primary={subCat.name} />
                       </MenuItem>
                     );
-                    subCat.items.forEach(item => {
+                    subCat.items.forEach((item) => {
                       items.push(
-                        <MenuItem key={item} value={item.toLowerCase().replace(/ /g, '-')} style={{ paddingLeft: '3em' }}>
+                        <MenuItem
+                          key={item}
+                          value={item.toLowerCase().replace(/ /g, "-'")}
+                          style={{ paddingLeft: "3em" }}
+                        >
                           <ListItemText primary={item} />
                         </MenuItem>
                       );
@@ -200,12 +225,13 @@ const CategoryPage = () => {
                 label="Sort By"
                 onChange={(e) => setSortBy(e.target.value)}
               >
-                <MenuItem value="createdAt">Latest</MenuItem>
-                <MenuItem value="title">Title A-Z</MenuItem>
-                <MenuItem value="title-desc">Title Z-A</MenuItem>
-                <MenuItem value="priceCents">Price Low-High</MenuItem>
-                <MenuItem value="priceCents-desc">Price High-Low</MenuItem>
-                <MenuItem value="popularity">Popularity</MenuItem>
+                 <MenuItem value="createdAt-desc">Latest</MenuItem>
+                 <MenuItem value="createdAt-asc">Oldest</MenuItem>
+                 <MenuItem value="title-asc">Title A-Z</MenuItem>
+                 <MenuItem value="title-desc">Title Z-A</MenuItem>
+                 <MenuItem value="priceCents-asc">Price Low-High</MenuItem>
+                 <MenuItem value="priceCents-desc">Price High-Low</MenuItem>
+                 <MenuItem value="popularity-desc">Popularity</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -257,8 +283,12 @@ const CategoryPage = () => {
               </Card>
             </Grid>
           ))
-        ) : wallpapersData?.data?.content?.length > 0 ? (
-          wallpapersData.data.content.map((wallpaper) => (
+        ) : isError ? (
+        <Typography color="error">
+          Error loading wallpapers: {error}
+        </Typography>
+        ) : wallpapers?.data?.content?.length > 0 ? (
+          wallpapers.data.content.map((wallpaper) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={wallpaper.id}>
               <Card className="hover:shadow-lg transition-shadow group h-full flex flex-col">
                 <Box className="relative overflow-hidden">
@@ -295,7 +325,7 @@ const CategoryPage = () => {
                       color="primary"
                       className="font-bold mt-1"
                     >
-                      ₹{wallpaper.priceCents}
+                      ${(wallpaper.priceCents / 100).toFixed(2)}
                     </Typography>
                   )}
                 </CardContent>

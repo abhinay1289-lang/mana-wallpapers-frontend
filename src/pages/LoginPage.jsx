@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import {
   Container,
   Paper,
@@ -19,17 +20,18 @@ import {
 } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../features/thunks/authThunks";
+import { clearAuthState } from "../features/slices/authSlice";
 import toast from "react-hot-toast";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const { login } = useAuth();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { status, isAuthenticated, error } = useSelector((state) => state.auth);
 
   const from = location.state?.from?.pathname || "/dashboard";
 
@@ -39,28 +41,35 @@ const LoginPage = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = async (data) => {
-    setIsLoading(true);
-    setError("");
+  useEffect(() => {
+    // Clear previous auth errors when component mounts
+    return () => {
+        dispatch(clearAuthState());
+    }
+  }, [dispatch]);
 
-    try {
-      await login(data);
+  useEffect(() => {
+    if (isAuthenticated) {
       toast.success("Login successful!");
       navigate(from, { replace: true });
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || "Login failed";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
     }
+  }, [isAuthenticated, navigate, from]);
+
+  const onSubmit = (data) => {
+    dispatch(loginUser(data));
   };
+
+  const isLoading = status === "loading";
 
   return (
     <Container maxWidth="sm" className="py-8 sm:py-16">
       <Paper elevation={3} className="p-4 sm:p-8">
         <Box className="text-center mb-6">
-          <Typography variant="h4" component="h1" className="font-bold text-indigo-600 mb-2">
+          <Typography
+            variant="h4"
+            component="h1"
+            className="font-bold text-indigo-600 mb-2"
+          >
             Welcome Back
           </Typography>
           <Typography variant="body1" color="text.secondary">
@@ -70,7 +79,7 @@ const LoginPage = () => {
 
         {error && (
           <Alert severity="error" className="mb-4">
-            {error}
+            {error.message || "Login failed. Please check your credentials."}
           </Alert>
         )}
 

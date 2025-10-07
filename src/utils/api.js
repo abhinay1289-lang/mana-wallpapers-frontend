@@ -1,9 +1,9 @@
+
 import axios from "axios";
 import toast from "react-hot-toast";
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  "https://mana-wallpapers-backend.onrender.com/api";
+  import.meta.env.VITE_API_BASE_URL;
 
 // Create axios instance
 const api = axios.create({
@@ -59,5 +59,32 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Auth
+export const login = (credentials) => api.post("/auth/login", credentials);
+export const register = (userData) => api.post("/auth/register", userData);
+export const logout = () => api.post("/auth/logout");
+export const getUser = () => api.get("/auth/me");
+
+// Wallpapers
+export const getWallpapers = (filters) => api.get("/wallpapers", { params: filters });
+export const getWallpaperById = (id) => api.get(`/wallpapers/${id}`);
+export const uploadWallpaper = (wallpaperData) => api.post("/wallpapers", wallpaperData);
+export const updateWallpaper = (id, data) => api.put(`/wallpapers/${id}`, data);
+export const deleteWallpaper = (id) => api.delete(`/wallpapers/${id}`);
+
+// Cart
+export const getCart = () => api.get("/cart");
+export const addToCart = (item) => api.post("/cart", item);
+export const removeFromCart = (id) => api.delete(`/cart/${id}`);
+export const clearCart = () => api.delete("/cart");
+
+// Reports
+export const getReports = () => api.get("/reports");
+
+// Users
+export const getUsers = () => api.get("/users");
+export const updateUser = (id, data) => api.put(`/users/${id}`, data);
+export const deleteUser = (id) => api.delete(`/users/${id}`);
 
 export default api;

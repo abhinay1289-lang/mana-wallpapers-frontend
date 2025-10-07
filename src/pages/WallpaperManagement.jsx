@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import {
   Container,
   Grid,
@@ -25,53 +26,57 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
 } from "@mui/icons-material";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { wallpaperService } from "../services/wallpaperService";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchWallpapers,
+  deleteWallpaper,
+} from "../features/thunks/wallpapersThunks";
 import { categories } from "../data/categories";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 
 const WallpaperManagement = () => {
-  const queryClient = useQueryClient();
+  const dispatch = useDispatch();
+  const {
+    items: wallpapers,
+    status: wallpapersStatus,
+    error,
+  } = useSelector((state) => state.wallpapers);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("createdAt-desc");
   const [priceFilter, setPriceFilter] = useState("");
   const [dimensionFilter, setDimensionFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
 
-  const {
-    data: wallpapersData,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: [
-      "wallpapers",
-      categoryFilter,
-      searchTerm,
+  useEffect(() => {
+    const params = {
+      category: categoryFilter === "all" ? undefined : categoryFilter,
+      q: searchTerm || undefined,
       sortBy,
-      priceFilter,
-      dimensionFilter,
-    ],
-    queryFn: () =>
-      wallpaperService.getAllWallpapers({
-        category: categoryFilter === "all" ? undefined : categoryFilter,
-        q: searchTerm || undefined,
-        sortBy,
-        free: priceFilter === "" ? undefined : priceFilter === "true",
-        dimension: dimensionFilter === "" ? undefined : dimensionFilter,
-      }),
-  });
+      free: priceFilter === "" ? undefined : priceFilter === "true",
+      dimension: dimensionFilter === "" ? undefined : dimensionFilter,
+    };
+    dispatch(fetchWallpapers(params));
+  }, [
+    dispatch,
+    categoryFilter,
+    searchTerm,
+    sortBy,
+    priceFilter,
+    dimensionFilter,
+  ]);
 
-  const { mutate: deleteWallpaper, isLoading: isDeleting } = useMutation({
-    mutationFn: wallpaperService.deleteWallpaper,
-    onSuccess: () => {
-      toast.success("Wallpaper deleted successfully");
-      queryClient.invalidateQueries("wallpapers");
-    },
-    onError: () => {
-      toast.error("Failed to delete wallpaper");
-    },
-  });
+  const handleDelete = (id) => {
+    dispatch(deleteWallpaper(id))
+      .unwrap()
+      .then(() => {
+        toast.success("Wallpaper deleted successfully");
+      })
+      .catch(() => {
+        toast.error("Failed to delete wallpaper");
+      });
+  };
 
   const getCategoryName = (slug) => {
     const category = categories.find(
@@ -79,6 +84,9 @@ const WallpaperManagement = () => {
     );
     return category ? category.name : slug;
   };
+
+  const isLoading = wallpapersStatus === "loading";
+  const isError = wallpapersStatus === "failed";
 
   return (
     <Container maxWidth="xl" className="py-4 sm:py-8">
@@ -199,11 +207,11 @@ const WallpaperManagement = () => {
         </Grid>
       ) : isError ? (
         <Typography color="error">
-          Error loading wallpapers. Please try again.
+          Error loading wallpapers: {error}
         </Typography>
-      ) : wallpapersData?.data?.content?.length > 0 ? (
+      ) : wallpapers?.data?.content?.length > 0 ? (
         <Grid container spacing={3}>
-          {wallpapersData.data.content.map((wallpaper) => (
+          {wallpapers.data.content.map((wallpaper) => (
             <Grid item xs={12} sm={6} md={4} lg={3} key={wallpaper.id}>
               <Card className="h-full flex flex-col">
                 <CardMedia
@@ -250,8 +258,7 @@ const WallpaperManagement = () => {
                   </IconButton>
                   <IconButton
                     size="small"
-                    onClick={() => deleteWallpaper(wallpaper.id || wallpaper._id)}
-                    disabled={isDeleting}
+                    onClick={() => handleDelete(wallpaper.id || wallpaper._id)}
                   >
                     <DeleteIcon />
                   </IconButton>

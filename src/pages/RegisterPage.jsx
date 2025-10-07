@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import {
   Container,
   Paper,
@@ -20,16 +21,17 @@ import {
 } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useDispatch, useSelector } from "react-redux";
+import { registerUser } from "../features/thunks/authThunks";
+import { clearAuthState } from "../features/slices/authSlice";
 import toast from "react-hot-toast";
 
 const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const { register: registerUser } = useAuth();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const { status, error } = useSelector((state) => state.auth);
 
   const {
     register,
@@ -40,33 +42,39 @@ const RegisterPage = () => {
 
   const password = watch("password");
 
-  const onSubmit = async (data) => {
-    setIsLoading(true);
-    setError("");
+  useEffect(() => {
+    return () => {
+      dispatch(clearAuthState());
+    };
+  }, [dispatch]);
 
+  const onSubmit = async (data) => {
     try {
-      await registerUser({
-        email: data.email,
-        password: data.password,
-        fullName: data.fullName,
-      });
+      await dispatch(
+        registerUser({
+          email: data.email,
+          password: data.password,
+          fullName: data.fullName,
+        })
+      ).unwrap();
       toast.success("Registration successful! Please login.");
       navigate("/login");
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || "Registration failed";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
+    } catch (err) {
+      toast.error(err.message || "Registration failed");
     }
   };
+
+  const isLoading = status === "loading";
 
   return (
     <Container maxWidth="sm" className="py-8 sm:py-16">
       <Paper elevation={3} className="p-4 sm:p-8">
         <Box className="text-center mb-6">
-          <Typography variant="h4" component="h1" className="font-bold text-indigo-600 mb-2">
+          <Typography
+            variant="h4"
+            component="h1"
+            className="font-bold text-indigo-600 mb-2"
+          >
             Create Account
           </Typography>
           <Typography variant="body1" color="text.secondary">
@@ -76,7 +84,7 @@ const RegisterPage = () => {
 
         {error && (
           <Alert severity="error" className="mb-4">
-            {error}
+            {error.message || "An unexpected error occurred."}
           </Alert>
         )}
 
