@@ -29,12 +29,14 @@ import { categories } from "../data/categories";
 const HomePage = () => {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-  const { items: wallpapers, status: wallpapersStatus } = useSelector(
-    (state) => state.wallpapers
-  );
+  const {
+    items: wallpapers,
+    status: wallpapersStatus,
+    error,
+  } = useSelector((state) => state.wallpapers);
 
   useEffect(() => {
-    dispatch(fetchWallpapers({ page: 0, size: 12, sortBy: 'popularity-desc' }));
+    dispatch(fetchWallpapers({ page: 0, size: 12, sortBy: "popularity-desc" }));
   }, [dispatch]);
 
   const handleAddToCart = (wallpaper) => {
@@ -43,6 +45,27 @@ const HomePage = () => {
   };
 
   const isLoading = wallpapersStatus === "loading";
+
+  if (wallpapersStatus === "failed") {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom color="error">
+          Something went wrong
+        </Typography>
+        <Typography variant="body1" color="error">
+          We couldn't load the wallpapers. Please try again later.
+        </Typography>
+        <Typography
+          variant="caption"
+          display="block"
+          sx={{ mt: 2 }}
+          color="text.secondary"
+        >
+          Error details: {error}
+        </Typography>
+      </Container>
+    );
+  }
 
   // TODO: This should be fetched from the server or a config file
   const INR_EXCHANGE_RATE = 83;
@@ -184,7 +207,10 @@ const HomePage = () => {
                             color="primary"
                             className="font-bold mt-1"
                           >
-                           {`₹${((wallpaper.priceCents / 100) * INR_EXCHANGE_RATE).toFixed(2)}`}
+                            {`₹${(
+                              (wallpaper.priceCents / 100) *
+                              INR_EXCHANGE_RATE
+                            ).toFixed(2)}`}
                           </Typography>
                         )}
                       </CardContent>

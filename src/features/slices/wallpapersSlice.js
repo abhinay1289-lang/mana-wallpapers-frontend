@@ -29,7 +29,7 @@ const wallpapersSlice = createSlice({
       })
       .addCase(fetchWallpapers.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message;
+        state.error = action.payload;
       })
       .addCase(fetchWallpaperById.fulfilled, (state, action) => {
         state.selectedWallpaper = action.payload;

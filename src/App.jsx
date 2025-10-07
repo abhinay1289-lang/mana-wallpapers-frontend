@@ -1,57 +1,12 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { Outlet } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { Toaster } from "react-hot-toast";
 
 import Header from "./components/common/Header";
 import Footer from "./components/common/Footer";
-import ProtectedRoute from "./components/common/ProtectedRoute";
-
-// Pages
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import CategoryPage from "./pages/CategoryPage";
-import ProductPage from "./pages/ProductPage";
-import CartPage from "./pages/CartPage";
-import CheckoutPage from "./pages/CheckoutPage";
-import BuyerDashboard from "./pages/BuyerDashboard";
-import SearchPage from "./pages/SearchPage";
-import BuyerProfile from "./pages/BuyerProfile";
-import Wishlist from "./pages/Wishlist";
-import UserManagement from "./pages/UserManagement";
-import Analytics from "./pages/Analytics";
-import UploadWallpaper from "./pages/UploadWallpaper";
-import Reports from "./pages/Reports";
-import Settings from "./pages/Settings";
-import WallpaperManagement from "./pages/WallpaperManagement";
-import HelpCenter from "./pages/HelpCenter";
-import ContactUs from "./pages/ContactUs";
-import LicenseInfo from "./pages/LicenseInfo";
-import RefundPolicy from "./pages/RefundPolicy";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
-import CookiePolicy from "./pages/CookiePolicy";
-import DMCA from "./pages/DMCA";
 
 import "./styles/globals.css";
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    },
-  },
-});
 
 const theme = createTheme({
   palette: {
@@ -107,127 +62,15 @@ const theme = createTheme({
 
 const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Router>
           <div className="min-h-screen flex flex-col bg-primary-color text-text-color">
             <Header />
             <main className="flex-1">
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/category/:slug" element={<CategoryPage />} />
-                <Route path="/wallpaper/:id" element={<ProductPage />} />
-                <Route path="/search/:searchTerm" element={<SearchPage />} />
-                <Route path="/help-center" element={<HelpCenter />} />
-                <Route path="/contact-us" element={<ContactUs />} />
-                <Route path="/license-info" element={<LicenseInfo />} />
-                <Route path="/refund-policy" element={<RefundPolicy />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="/terms-of-service" element={<TermsOfService />} />
-                <Route path="/cookie-policy" element={<CookiePolicy />} />
-                <Route path="/dmca" element={<DMCA />} />
-
-                {/* Buyer Routes */}
-                <Route
-                  path="/buyer/cart"
-                  element={
-                    <ProtectedRoute requiredRole="BUYER">
-                      <CartPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/buyer/checkout"
-                  element={
-                    <ProtectedRoute requiredRole="BUYER">
-                      <CheckoutPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/buyer/dashboard"
-                  element={
-                    <ProtectedRoute requiredRole="BUYER">
-                      <BuyerDashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/buyer/profile"
-                  element={
-                    <ProtectedRoute requiredRole="BUYER">
-                      <BuyerProfile />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/buyer/wishlist"
-                  element={
-                    <ProtectedRoute requiredRole="BUYER">
-                      <Wishlist />
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* Admin Routes */}
-                <Route
-                  path="/admin/upload-wallpaper"
-                  element={
-                    <ProtectedRoute requiredRole="ADMIN">
-                      <UploadWallpaper />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/users"
-                  element={
-                    <ProtectedRoute requiredRole="ADMIN">
-                      <UserManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/analytics"
-                  element={
-                    <ProtectedRoute requiredRole="ADMIN">
-                      <Analytics />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/reports"
-                  element={
-                    <ProtectedRoute requiredRole="ADMIN">
-                      <Reports />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/settings"
-                  element={
-                    <ProtectedRoute requiredRole="ADMIN">
-                      <Settings />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin/wallpapers"
-                  element={
-                    <ProtectedRoute requiredRole="ADMIN">
-                      <WallpaperManagement />
-                    </ProtectedRoute>
-                  }
-                />
-                {/* Catch all route */}
-                <Route path="*" element={<Navigate to="/" />} />
-              </Routes>
+              <Outlet />
             </main>
             <Footer />
           </div>
-        </Router>
         <Toaster
           position="top-right"
           toastOptions={{
@@ -239,8 +82,6 @@ const App = () => {
           }}
         />
       </ThemeProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
   );
 };
 
