@@ -22,12 +22,17 @@ const UploadWallpaper = () => {
     },
   });
   const queryClient = useQueryClient();
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const [subCategories, setSubCategories] = useState([]);
   const [subSubCategories, setSubSubCategories] = useState([]);
 
   const categoryValue = watch("category");
   const subCategoryValue = watch("subCategory");
+
+  // useEffect(() => {
+  //   getAllWallpapers()
+  // })
 
   useEffect(() => {
     if (categoryValue) {
@@ -82,13 +87,15 @@ const UploadWallpaper = () => {
 
   const onSubmit = (data) => {
     const formData = new FormData();
-    for (const key in data) {
-      if (key === "image") {
-        formData.append(key, data[key][0]);
-      } else {
-        formData.append(key, data[key]);
-      }
+    // Exclude image from wallpaperDto, put rest as JSON string
+    const { image, ...wallpaperDto } = data;
+    formData.append("wallpaperDto", JSON.stringify(wallpaperDto));
+
+    // Attach the image file
+    if (image && image[0]) {
+      formData.append("file", image[0]);
     }
+    formData.append("uploadedBy", user.userId);
     mutate(formData);
   };
 
@@ -259,8 +266,8 @@ const UploadWallpaper = () => {
             {...register("currency", { required: "Currency is required" })}
           >
             <option value="">Select Currency</option>
-            <option value="jpeg">IND</option>
-            <option value="png">USD</option>
+            <option value="IND">IND</option>
+            <option value="USD">USD</option>
           </select>
           {errors.currency && (
             <p className="error-message">{errors.currency.message}</p>

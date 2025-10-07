@@ -10,6 +10,10 @@ import {
   Alert,
   InputAdornment,
   IconButton,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
 } from "@mui/material";
 import {
   Visibility,
@@ -49,6 +53,7 @@ const RegisterPage = () => {
         email: data.email,
         password: data.password,
         fullName: data.fullName,
+        role: data.role,
       });
       toast.success("Registration successful! Please login.");
       navigate("/login");
@@ -66,7 +71,11 @@ const RegisterPage = () => {
     <Container maxWidth="sm" className="py-8 sm:py-16">
       <Paper elevation={3} className="p-4 sm:p-8">
         <Box className="text-center mb-6">
-          <Typography variant="h4" component="h1" className="font-bold text-indigo-600 mb-2">
+          <Typography
+            variant="h4"
+            component="h1"
+            className="font-bold text-indigo-600 mb-2"
+          >
             Create Account
           </Typography>
           <Typography variant="body1" color="text.secondary">
@@ -176,6 +185,18 @@ const RegisterPage = () => {
               ),
             }}
           />
+          <FormControl fullWidth>
+            <InputLabel id="role-label">Role</InputLabel>
+            <Select
+              labelId="role-label"
+              defaultValue="BUYER"
+              label="Role"
+              {...register("role", { required: "Role is required" })}
+            >
+              <MenuItem value="BUYER">BUYER</MenuItem>
+              <MenuItem value="ADMIN">ADMIN</MenuItem>
+            </Select>
+          </FormControl>
 
           <Button
             type="submit"

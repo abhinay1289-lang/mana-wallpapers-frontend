@@ -44,7 +44,9 @@ const LoginPage = () => {
     setError("");
 
     try {
-      await login(data);
+      await login(data).then((res) => {
+        localStorage.setItem("user", JSON.stringify(res.data));
+      });
       toast.success("Login successful!");
       navigate(from, { replace: true });
     } catch (error) {
@@ -60,7 +62,11 @@ const LoginPage = () => {
     <Container maxWidth="sm" className="py-8 sm:py-16">
       <Paper elevation={3} className="p-4 sm:p-8">
         <Box className="text-center mb-6">
-          <Typography variant="h4" component="h1" className="font-bold text-indigo-600 mb-2">
+          <Typography
+            variant="h4"
+            component="h1"
+            className="font-bold text-indigo-600 mb-2"
+          >
             Welcome Back
           </Typography>
           <Typography variant="body1" color="text.secondary">

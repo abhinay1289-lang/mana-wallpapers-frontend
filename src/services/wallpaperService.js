@@ -2,12 +2,9 @@ import api from "./api";
 import { dummyWallpapers } from "../data/dummyWallpapers";
 
 export const wallpaperService = {
-  getAllWallpapers: async (params = {}) => {
-    // const response = await api.get("/wallpapers", { params });
-    // return response.data;
-    return new Promise((resolve) =>
-      setTimeout(() => resolve(dummyWallpapers), 500)
-    );
+  getAllWallpapers: async () => {
+    const response = await api.get("/all-category");
+    return response.data;
   },
 
   getWallpaperById: async (id) => {
@@ -87,16 +84,11 @@ export const wallpaperService = {
   },
 };
 
-export const uploadWallpaper = async (wallpaperData, imageFile) => {
-  console.log(wallpaperData);
-  const formData = new FormData();
-  formData.append("wallpaperDto", JSON.stringify(wallpaperData));
-  formData.append("file", imageFile);
-
-  // const response = await fetch("/api/wallpapers", {
-  //   method: "POST",
-  //   body: formData,
-  // });
+export const uploadWallpaper = async (formData) => {
+  const response = await fetch("/api/wallpapers", {
+    method: "POST",
+    body: formData,
+  });
 
   if (!response.ok) {
     throw new Error("Failed to upload wallpaper");
