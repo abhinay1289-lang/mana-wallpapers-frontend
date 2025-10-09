@@ -1,10 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { login, register } from "../thunks/authThunk";
+import { login, registerUser } from "../thunks/authThunk";
+
+const persistedUser = JSON.parse(localStorage.getItem("user")) || null;
 
 const initialState = {
   isLoading: false,
-  dashboardCampaigns: null,
+  isAuthenticated: !!persistedUser,
   error: null,
+  userType: persistedUser ? persistedUser.role : null,
 };
 
 export const authSlice = createSlice({
@@ -19,7 +22,10 @@ export const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading = false;
-        localStorage.setItem("user", JSON.stringify(action.data));
+        state.isAuthenticated = action.payload.success;
+        state.userType = action.payload.data?.role;
+        localStorage.setItem("token", action.payload.data?.accessToken);
+        localStorage.setItem("user", JSON.stringify(action.payload.data));
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
@@ -27,17 +33,19 @@ export const authSlice = createSlice({
         message.error("Something went wrong!");
       }),
       builder
-        .addCase(register.pending, (state) => {
+        .addCase(registerUser.pending, (state) => {
           state.isLoading = true;
           state.error = null;
         })
-        .addCase(register.fulfilled, (state, action) => {
+        .addCase(registerUser.fulfilled, (state, action) => {
           state.isLoading = false;
         })
-        .addCase(register.rejected, (state, action) => {
+        .addCase(registerUser.rejected, (state, action) => {
           state.isLoading = false;
           state.error = action.payload;
           message.error("Something went wrong!");
         });
   },
 });
+
+export default authSlice.reducer;

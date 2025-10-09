@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { authSlice } from "./slices/authSlice";
+import authReducer from "./slices/authSlice";
+import wallpaperReducer from "./slices/wallpaperSlice";
 
 const store = configureStore({
   reducer: {
-    auth: authSlice,
+    auth: authReducer,
+    wallpaper: wallpaperReducer,
   },
 });
 

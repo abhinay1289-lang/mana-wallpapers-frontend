@@ -124,13 +124,19 @@ const App = () => {
                     <Route path="/register" element={<RegisterPage />} />
                     <Route path="/category/:slug" element={<CategoryPage />} />
                     <Route path="/wallpaper/:id" element={<ProductPage />} />
-                    <Route path="/search/:searchTerm" element={<SearchPage />} />
+                    <Route
+                      path="/search/:searchTerm"
+                      element={<SearchPage />}
+                    />
                     <Route path="/help-center" element={<HelpCenter />} />
                     <Route path="/contact-us" element={<ContactUs />} />
                     <Route path="/license-info" element={<LicenseInfo />} />
                     <Route path="/refund-policy" element={<RefundPolicy />} />
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                    <Route path="/terms-of-service" element={<TermsOfService />} />
+                    <Route
+                      path="/terms-of-service"
+                      element={<TermsOfService />}
+                    />
                     <Route path="/cookie-policy" element={<CookiePolicy />} />
                     <Route path="/dmca" element={<DMCA />} />
 

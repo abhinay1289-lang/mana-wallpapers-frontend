@@ -1,5 +1,4 @@
 import { createContext, useContext, useReducer, useEffect } from "react";
-import { authService } from "../services/authService";
 
 const AuthContext = createContext();
 
@@ -46,11 +45,11 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem("token");
       if (token) {
         try {
-          if (token === 'mock-admin-token') {
+          if (token === "mock-admin-token") {
             const user = {
-              email: 'admin.wallpaper@gmail.com',
-              role: 'ADMIN',
-              name: 'Admin User',
+              email: "admin.wallpaper@gmail.com",
+              role: "ADMIN",
+              name: "Admin User",
             };
             dispatch({
               type: "LOGIN_SUCCESS",
@@ -59,11 +58,11 @@ export const AuthProvider = ({ children }) => {
                 user: user,
               },
             });
-          } else if (token === 'mock-buyer-token') {
+          } else if (token === "mock-buyer-token") {
             const user = {
-              email: 'buyer.wallpaper@gmail.com',
-              role: 'BUYER',
-              name: 'Buyer User',
+              email: "buyer.wallpaper@gmail.com",
+              role: "BUYER",
+              name: "Buyer User",
             };
             dispatch({
               type: "LOGIN_SUCCESS",
@@ -87,13 +86,16 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (credentials) => {
-    if (credentials.email === 'admin.wallpaper@gmail.com' && credentials.password === '123456789') {
+    if (
+      credentials.email === "admin.wallpaper@gmail.com" &&
+      credentials.password === "123456789"
+    ) {
       const user = {
-        email: 'admin.wallpaper@gmail.com',
-        role: 'ADMIN',
-        name: 'Admin User',
+        email: "admin.wallpaper@gmail.com",
+        role: "ADMIN",
+        name: "Admin User",
       };
-      const accessToken = 'mock-admin-token';
+      const accessToken = "mock-admin-token";
       localStorage.setItem("token", accessToken);
       dispatch({
         type: "LOGIN_SUCCESS",
@@ -105,13 +107,16 @@ export const AuthProvider = ({ children }) => {
       return { data: { accessToken, ...user } };
     }
 
-    if (credentials.email === 'buyer.wallpaper@gmail.com' && credentials.password === '123456789') {
+    if (
+      credentials.email === "buyer.wallpaper@gmail.com" &&
+      credentials.password === "123456789"
+    ) {
       const user = {
-        email: 'buyer.wallpaper@gmail.com',
-        role: 'BUYER',
-        name: 'Buyer User',
+        email: "buyer.wallpaper@gmail.com",
+        role: "BUYER",
+        name: "Buyer User",
       };
-      const accessToken = 'mock-buyer-token';
+      const accessToken = "mock-buyer-token";
       localStorage.setItem("token", accessToken);
       dispatch({
         type: "LOGIN_SUCCESS",
@@ -122,39 +127,6 @@ export const AuthProvider = ({ children }) => {
       });
       return { data: { accessToken, ...user } };
     }
-
-    try {
-      const response = await authService.login(credentials);
-      const { accessToken, ...user } = response.data;
-
-      localStorage.setItem("token", accessToken);
-
-      dispatch({
-        type: "LOGIN_SUCCESS",
-        payload: {
-          token: accessToken,
-          user: user,
-        },
-      });
-
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const register = async (userData) => {
-    try {
-      const response = await authService.register(userData);
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    dispatch({ type: "LOGOUT" });
   };
 
   const value = {
@@ -163,8 +135,6 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: state.isAuthenticated,
     isLoading: state.isLoading,
     login,
-    register,
-    logout,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

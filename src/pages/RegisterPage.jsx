@@ -24,16 +24,18 @@ import {
 } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { registerUser } from "../store/thunks/authThunk";
 
 const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { register: registerUser } = useAuth();
+  // const { register: registerUser } = useAuth();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const {
     register,
@@ -50,23 +52,26 @@ const RegisterPage = () => {
     setIsLoading(true);
     setError("");
 
-    try {
-      await registerUser({
+    dispatch(
+      registerUser({
         email: data.email,
         password: data.password,
         fullName: data.fullName,
         role: data.role,
+      })
+    )
+      .then(() => {
+        setIsLoading(false);
+        toast.success("Registration successful! Please login.");
+        navigate("/login");
+      })
+      .catch(() => {
+        const errorMessage =
+          error.response?.data?.message || "Registration failed";
+        setError(errorMessage);
+        toast.error(errorMessage);
+        setIsLoading(false);
       });
-      toast.success("Registration successful! Please login.");
-      navigate("/login");
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || "Registration failed";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   return (

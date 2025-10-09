@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { categories } from "../data/categories";
 
 import { uploadWallpaper } from "../services/wallpaperService";
 import "../styles/UploadWallpaper.css";
+import { getAllcategoriesStructure } from "../store/thunks/wallpaperThunk";
+import { useDispatch, useSelector } from "react-redux";
 
 const UploadWallpaper = () => {
   const {
@@ -21,22 +22,23 @@ const UploadWallpaper = () => {
       isFree: false,
     },
   });
+  const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const user = JSON.parse(localStorage.getItem("user"));
-
   const [subCategories, setSubCategories] = useState([]);
   const [subSubCategories, setSubSubCategories] = useState([]);
+  const { categories } = useSelector((state) => state.wallpaper);
 
   const categoryValue = watch("category");
   const subCategoryValue = watch("subCategory");
 
-  // useEffect(() => {
-  //   getAllWallpapers()
-  // })
+  useEffect(() => {
+    dispatch(getAllcategoriesStructure());
+  }, []);
 
   useEffect(() => {
     if (categoryValue) {
-      const selectedCategory = categories.find(
+      const selectedCategory = categories?.find(
         (cat) => cat.name.toLowerCase().replace(/ /g, "-") === categoryValue
       );
       if (selectedCategory) {
@@ -60,7 +62,7 @@ const UploadWallpaper = () => {
         (subCat) =>
           subCat.name.toLowerCase().replace(/ /g, "-") === subCategoryValue
       );
-      if (selectedSubCategory && selectedSubCategory.items) {
+      if (selectedSubCategory) {
         setSubSubCategories(selectedSubCategory.items);
         setValue("subSubCategory", "");
       } else {
@@ -147,7 +149,7 @@ const UploadWallpaper = () => {
             id="category"
             {...register("category", { required: "Category is required" })}
           >
-            <option value="">Select Category</option>
+            <option value="category">Select Category</option>
             {categories.map((cat) => (
               <option
                 key={cat.name}
@@ -162,7 +164,7 @@ const UploadWallpaper = () => {
           )}
         </div>
 
-        {subCategories.length > 0 && (
+        {subCategories?.length > 0 && (
           <div className="form-group">
             <label htmlFor="subCategory">Sub Category</label>
             <select
@@ -181,7 +183,7 @@ const UploadWallpaper = () => {
                 </option>
               ))}
             </select>
-            {errors.subCategory && (
+            {errors?.subCategory && (
               <p className="error-message">{errors.subCategory.message}</p>
             )}
           </div>
@@ -194,10 +196,10 @@ const UploadWallpaper = () => {
               <option value="">Select Detail</option>
               {subSubCategories.map((item) => (
                 <option
-                  key={item}
-                  value={item.toLowerCase().replace(/ /g, "-")}
+                  key={item?.id}
+                  value={item.name?.toLowerCase().replace(/ /g, "-")}
                 >
-                  {item}
+                  {item?.name}
                 </option>
               ))}
             </select>

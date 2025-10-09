@@ -7,39 +7,36 @@ const API_BASE_URL =
   "http://localhost:8080/api";
 
 // Create axios instance
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+// const api = axios.create({
+//   baseURL: API_BASE_URL,
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+// });
 
 export const axiosClient = axios.create({
   // baseURL: "https://mana-wallpapers-backend.onrender.com/api",
   baseURL: "http://localhost:8080/api",
 });
 
-axiosClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+// axiosClient.interceptors.request.use((config) => {
+//   const token = localStorage.getItem("token");
+//   config.headers.Authorization = `Bearer ${token}`;
+//   return config;
+// });
 
-axiosClient.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    if (
-      error.response?.status === 401 &&
-      window.location.pathname !== "/login"
-    ) {
-      redirectToLogin();
-      return;
-    }
-    return Promise.reject(error);
-  }
-);
+// axiosClient.interceptors.response.use(
+//   (response) => {
+//     return response;
+//   },
+//   (error) => {
+//     if (error.response?.status === 401 && window.location.pathname !== "/") {
+//       redirectToLogin();
+//       return;
+//     }
+//     return Promise.reject(error);
+//   }
+// );
 
 export function redirectToLogin() {
   setTimeout(() => {
@@ -49,7 +46,7 @@ export function redirectToLogin() {
 }
 
 // Request interceptor to add auth token
-api.interceptors.request.use(
+axiosClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -63,7 +60,7 @@ api.interceptors.request.use(
 );
 
 // Response interceptor for error handling
-api.interceptors.response.use(
+axiosClient.interceptors.response.use(
   (response) => {
     return response;
   },
@@ -95,4 +92,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+export default axiosClient;

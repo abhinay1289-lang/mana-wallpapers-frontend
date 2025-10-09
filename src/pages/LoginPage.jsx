@@ -38,26 +38,25 @@ const LoginPage = () => {
 
   const {
     register,
-    // handleSubmit,
+    handleSubmit,
     formState: { errors },
   } = useForm();
 
-  const handleSubmit = () => {
+  const onSubmit = async (data) => {
     setIsLoading(true);
     setError("");
-
-    try {
-      dispatch(login(data)).then(() => {
+    dispatch(login(data))
+      .then(() => {
+        setIsLoading(false);
         toast.success("Login successful!");
         navigate(from, { replace: true });
+      })
+      .catch(() => {
+        const errorMessage = error.response?.data?.message || "Login failed";
+        setError(errorMessage);
+        toast.error(errorMessage);
+        setIsLoading(false);
       });
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || "Login failed";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   return (
@@ -82,7 +81,7 @@ const LoginPage = () => {
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <TextField
             fullWidth
             label="Email Address"
