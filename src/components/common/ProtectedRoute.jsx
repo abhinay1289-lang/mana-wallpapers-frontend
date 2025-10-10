@@ -26,8 +26,6 @@ const ProtectedRoute = ({ children, requiredRole }) => {
       <Navigate to={userType === "BUYER" ? "/home" : "/admin/analytics"} />
     );
   }
-  console.log("kehdwcencwe");
-
   return children;
 };
 

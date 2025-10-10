@@ -42,12 +42,8 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
 import DMCA from "./pages/DMCA";
-import globalObject from "./components/common/global-variables";
 
 import "./styles/globals.css";
-import { useDispatch } from "react-redux";
-import { getAllcategoriesStructure } from "./store/thunks/wallpaperThunk";
-import { useEffect } from "react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -112,16 +108,6 @@ const theme = createTheme({
 });
 
 const App = () => {
-  const token = localStorage.getItem("token");
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (token) {
-      dispatch(getAllcategoriesStructure()).then((res) => {
-        globalObject.categories = res.payload.data;
-      });
-    }
-  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

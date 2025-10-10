@@ -3,6 +3,8 @@ import {
   getAllcategoriesStructure,
   uploadWallpaper,
 } from "../thunks/wallpaperThunk";
+import globalObject from "./../../components/common/global-variables"
+
 
 const initialState = {
   isLoading: false,
@@ -23,6 +25,7 @@ export const wallpaperSlice = createSlice({
       .addCase(getAllcategoriesStructure.fulfilled, (state, action) => {
         state.isLoading = false;
         state.categories = action.payload.data;
+        globalObject.categories = action.payload.data;
       })
       .addCase(getAllcategoriesStructure.rejected, (state, action) => {
         state.isLoading = false;

@@ -26,7 +26,7 @@ import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
 import ThreeDBackground from "../components/common/ThreeDBackground";
 // import { categories } from "../data/categories";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import globalObject from "../components/common/global-variables";
 
 const HomePage = () => {
@@ -38,6 +38,11 @@ const HomePage = () => {
   //   queryKey: ["wallpapers", { page: 0, size: 12 }],
   //   queryFn: () => wallpaperService.getAllWallpapers({ page: 0, size: 12 }),
   // });
+
+  // const token = localStorage.getItem("token");
+  // const dispatch = useDispatch();
+
+
 
   const handleAddToCart = (wallpaper) => {
     addToCart(wallpaper);

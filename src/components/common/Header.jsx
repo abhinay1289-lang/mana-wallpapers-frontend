@@ -50,6 +50,7 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
     handleMenuClose();
     navigate("/");
     window.location.reload();

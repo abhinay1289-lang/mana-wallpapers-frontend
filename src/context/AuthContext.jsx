@@ -1,6 +1,10 @@
 import { createContext, useContext, useReducer, useEffect } from "react";
+import globalObject from '../components/common/global-variables'
+import { useDispatch } from "react-redux";
+import { getAllcategoriesStructure } from "../store/thunks/wallpaperThunk";
 
 const AuthContext = createContext();
+
 
 const initialState = {
   user: null,
@@ -38,103 +42,26 @@ const authReducer = (state, action) => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, initialState);
+  const dispatch = useDispatch();
+  const [state] = useReducer(authReducer, initialState);
 
   useEffect(() => {
     const initAuth = async () => {
       const token = localStorage.getItem("token");
       if (token) {
-        try {
-          if (token === "mock-admin-token") {
-            const user = {
-              email: "admin.wallpaper@gmail.com",
-              role: "ADMIN",
-              name: "Admin User",
-            };
-            dispatch({
-              type: "LOGIN_SUCCESS",
-              payload: {
-                token: token,
-                user: user,
-              },
-            });
-          } else if (token === "mock-buyer-token") {
-            const user = {
-              email: "buyer.wallpaper@gmail.com",
-              role: "BUYER",
-              name: "Buyer User",
-            };
-            dispatch({
-              type: "LOGIN_SUCCESS",
-              payload: {
-                token: token,
-                user: user,
-              },
-            });
-          }
-          dispatch({ type: "SET_LOADING", payload: false });
-        } catch (error) {
-          localStorage.removeItem("token");
-          dispatch({ type: "LOGOUT" });
-        }
-      } else {
-        dispatch({ type: "SET_LOADING", payload: false });
-      }
+        dispatch(getAllcategoriesStructure()).then((res) => {
+          globalObject.categories = res.payload.data;
+        });
+    }
     };
-
     initAuth();
   }, []);
-
-  const login = async (credentials) => {
-    if (
-      credentials.email === "admin.wallpaper@gmail.com" &&
-      credentials.password === "123456789"
-    ) {
-      const user = {
-        email: "admin.wallpaper@gmail.com",
-        role: "ADMIN",
-        name: "Admin User",
-      };
-      const accessToken = "mock-admin-token";
-      localStorage.setItem("token", accessToken);
-      dispatch({
-        type: "LOGIN_SUCCESS",
-        payload: {
-          token: accessToken,
-          user: user,
-        },
-      });
-      return { data: { accessToken, ...user } };
-    }
-
-    if (
-      credentials.email === "buyer.wallpaper@gmail.com" &&
-      credentials.password === "123456789"
-    ) {
-      const user = {
-        email: "buyer.wallpaper@gmail.com",
-        role: "BUYER",
-        name: "Buyer User",
-      };
-      const accessToken = "mock-buyer-token";
-      localStorage.setItem("token", accessToken);
-      dispatch({
-        type: "LOGIN_SUCCESS",
-        payload: {
-          token: accessToken,
-          user: user,
-        },
-      });
-      return { data: { accessToken, ...user } };
-    }
-  };
 
   const value = {
     user: state.user,
     token: state.token,
     isAuthenticated: state.isAuthenticated,
     isLoading: state.isLoading,
-    login,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
