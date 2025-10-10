@@ -19,6 +19,7 @@
     "@mui/x-data-grid": "^6.18.1",
     "@react-three/drei": "^9.106.0",
     "@react-three/fiber": "^8.16.8",
+    "@reduxjs/toolkit": "^2.9.0",
     "@stripe/react-stripe-js": "^2.4.0",
     "@stripe/stripe-js": "^2.2.0",
     "@tanstack/react-query": "^5.8.4",

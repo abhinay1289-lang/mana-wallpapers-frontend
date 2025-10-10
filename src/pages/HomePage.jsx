@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Typography,
@@ -25,21 +25,28 @@ import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
 import ThreeDBackground from "../components/common/ThreeDBackground";
-import { categories } from "../data/categories";
+// import { categories } from "../data/categories";
+import { useSelector } from "react-redux";
+import globalObject from "../components/common/global-variables";
 
 const HomePage = () => {
   const { user } = useAuth();
   const { addToCart } = useCart();
+  const [categories, setCategories] = useState([]);
 
-  const { data: wallpapersData, isLoading } = useQuery({
-    queryKey: ["wallpapers", { page: 0, size: 12 }],
-    queryFn: () => wallpaperService.getAllWallpapers({ page: 0, size: 12 }),
-  });
+  // const { data: wallpapersData, isLoading } = useQuery({
+  //   queryKey: ["wallpapers", { page: 0, size: 12 }],
+  //   queryFn: () => wallpaperService.getAllWallpapers({ page: 0, size: 12 }),
+  // });
 
   const handleAddToCart = (wallpaper) => {
     addToCart(wallpaper);
     toast.success("Added to cart!");
   };
+
+  useEffect(() => {
+    setCategories(globalObject.categories || []);
+  }, [globalObject.categories]);
 
   return (
     <Box>
@@ -76,15 +83,18 @@ const HomePage = () => {
           Browse by Category
         </Typography>
 
-        <Grid container spacing={4} style={{justifyContent: "space-between"}}>
+        <Grid container spacing={4} style={{ justifyContent: "space-between" }}>
           {categories.map((category) => (
             <Grid item xs={12} sm={6} md={3} key={category.name}>
               <Card
                 className="hover:shadow-lg transition-shadow cursor-pointer group transform hover:-translate-y-2"
                 component={Link}
-                to={`/category/${category.name.toLowerCase().replace(/ /g, '-')}`}
-                 sx={{
-                  transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+                to={`/category/${category.name
+                  .toLowerCase()
+                  .replace(/ /g, "-")}`}
+                sx={{
+                  transition:
+                    "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
                   "&:hover": {
                     transform: "scale(1.05)",
                     boxShadow: "0 10px 20px rgba(0,0,0,0.2)",
@@ -120,7 +130,7 @@ const HomePage = () => {
             Featured Wallpapers
           </Typography>
 
-          <Grid container spacing={3}>
+          {/* <Grid container spacing={3}>
             {isLoading
               ? Array.from({ length: 8 }).map((_, index) => (
                   <Grid item xs={12} sm={6} md={3} key={index}>
@@ -204,7 +214,7 @@ const HomePage = () => {
                     </Card>
                   </Grid>
                 ))}
-          </Grid>
+          </Grid> */}
 
           <Box className="text-center mt-8">
             <Button
