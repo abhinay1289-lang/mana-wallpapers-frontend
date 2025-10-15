@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Container,
   Typography,
@@ -28,21 +28,24 @@ import ThreeDBackground from "../components/common/ThreeDBackground";
 // import { categories } from "../data/categories";
 import { useDispatch, useSelector } from "react-redux";
 import globalObject from "../components/common/global-variables";
+import { getAllcategoriesStructure } from "../store/thunks/wallpaperThunk";
 
 const HomePage = () => {
   const { user } = useAuth();
   const { addToCart } = useCart();
   const [categories, setCategories] = useState([]);
+  const { categories: categoriesList } = useSelector(
+    (state) => state.wallpaper
+  );
+  const dispatch = useDispatch();
 
-  // const { data: wallpapersData, isLoading } = useQuery({
-  //   queryKey: ["wallpapers", { page: 0, size: 12 }],
-  //   queryFn: () => wallpaperService.getAllWallpapers({ page: 0, size: 12 }),
-  // });
+  const fetchCategories = useCallback(() => {
+    dispatch(getAllcategoriesStructure());
+  }, [categoriesList]);
 
-  // const token = localStorage.getItem("token");
-  // const dispatch = useDispatch();
-
-
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const handleAddToCart = (wallpaper) => {
     addToCart(wallpaper);
@@ -50,8 +53,8 @@ const HomePage = () => {
   };
 
   useEffect(() => {
-    setCategories(globalObject.categories || []);
-  }, [globalObject.categories]);
+    setCategories(categoriesList);
+  }, [categoriesList]);
 
   return (
     <Box>
@@ -95,8 +98,8 @@ const HomePage = () => {
                 className="hover:shadow-lg transition-shadow cursor-pointer group transform hover:-translate-y-2"
                 component={Link}
                 to={`/category/${category.name
-                  .toLowerCase()
-                  .replace(/ /g, "-")}`}
+                  ?.toLowerCase()
+                  ?.replace(/ /g, "-")}`}
                 sx={{
                   transition:
                     "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",

@@ -48,7 +48,9 @@ import { useQuery } from "@tanstack/react-query";
 import { wallpaperService } from "../services/wallpaperService";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
-import { categories } from "../data/categories";
+// import { categories } from "../data/categories";
+import { useSelector } from "react-redux";
+import globalObject from "../components/common/global-variables";
 
 const iconMap = {
   Brush: <Brush />,
@@ -78,23 +80,28 @@ const CategoryPage = () => {
   const [dimensionFilter, setDimensionFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState(slug || "all");
   const { addToCart } = useCart();
+  // const { categories } = useSelector((state) => state.wallpaper);
+  const categories = globalObject.categories;
+
+  console.log(slug, categories);
 
   const getCategoryNameBySlug = (slug) => {
     if (!slug || slug === "all") {
       return "All Wallpapers";
     }
     for (const mainCat of categories) {
-      const mainCatSlug = mainCat.name.toLowerCase().replace(/ /g, '-');
+      const mainCatSlug = mainCat.name.toLowerCase().replace(/ /g, "-");
       if (mainCatSlug === slug) {
         return mainCat.name;
       }
       for (const subCat of mainCat.subCategories) {
-        const subCatSlug = subCat.name.toLowerCase().replace(/ /g, '-');
+        console.log(subCat);
+        const subCatSlug = subCat.name.toLowerCase().replace(/ /g, "-");
         if (subCatSlug === slug) {
           return subCat.name;
         }
         for (const item of subCat.items) {
-          const itemSlug = item.toLowerCase().replace(/ /g, '-');
+          const itemSlug = item.name.toLowerCase().replace(/ /g, "-");
           if (itemSlug === slug) {
             return item;
           }
@@ -159,7 +166,7 @@ const CategoryPage = () => {
           </Grid>
 
           <Grid item xs={12} sm={6} md={2}>
-             <FormControl fullWidth>
+            <FormControl fullWidth>
               <InputLabel>Category</InputLabel>
               <Select
                 value={categoryFilter}
@@ -168,20 +175,33 @@ const CategoryPage = () => {
                 renderValue={(selected) => getCategoryNameBySlug(selected)}
               >
                 <MenuItem value="all">All</MenuItem>
-                {categories.map(mainCat => {
+                {categories.map((mainCat) => {
                   const items = [];
-                  items.push(<ListSubheader key={mainCat.name}>{mainCat.name}</ListSubheader>);
-                  mainCat.subCategories.forEach(subCat => {
+                  items.push(
+                    <ListSubheader key={mainCat.name}>
+                      {mainCat.name}
+                    </ListSubheader>
+                  );
+                  mainCat?.subCategories.forEach((subCat) => {
                     items.push(
-                      <MenuItem key={subCat.name} value={subCat.name.toLowerCase().replace(/ /g, '-')} >
-                        {iconMap[subCat.icon] && <ListItemIcon>{iconMap[subCat.icon]}</ListItemIcon>}
+                      <MenuItem
+                        key={subCat.name}
+                        value={subCat.name.toLowerCase().replace(/ /g, "-")}
+                      >
+                        {iconMap[subCat.icon] && (
+                          <ListItemIcon>{iconMap[subCat.icon]}</ListItemIcon>
+                        )}
                         <ListItemText primary={subCat.name} />
                       </MenuItem>
                     );
-                    subCat.items.forEach(item => {
+                    subCat.items.forEach((item) => {
                       items.push(
-                        <MenuItem key={item} value={item.toLowerCase().replace(/ /g, '-')} style={{ paddingLeft: '3em' }}>
-                          <ListItemText primary={item} />
+                        <MenuItem
+                          key={item.name}
+                          value={item.name.toLowerCase().replace(/ /g, "-")}
+                          style={{ paddingLeft: "3em" }}
+                        >
+                          <ListItemText primary={item.name} />
                         </MenuItem>
                       );
                     });

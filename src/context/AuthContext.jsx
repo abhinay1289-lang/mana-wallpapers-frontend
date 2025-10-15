@@ -1,10 +1,9 @@
 import { createContext, useContext, useReducer, useEffect } from "react";
-import globalObject from '../components/common/global-variables'
+import globalObject from "../components/common/global-variables";
 import { useDispatch } from "react-redux";
 import { getAllcategoriesStructure } from "../store/thunks/wallpaperThunk";
 
 const AuthContext = createContext();
-
 
 const initialState = {
   user: null,
@@ -42,20 +41,7 @@ const authReducer = (state, action) => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const dispatch = useDispatch();
   const [state] = useReducer(authReducer, initialState);
-
-  useEffect(() => {
-    const initAuth = async () => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        dispatch(getAllcategoriesStructure()).then((res) => {
-          globalObject.categories = res.payload.data;
-        });
-    }
-    };
-    initAuth();
-  }, []);
 
   const value = {
     user: state.user,
