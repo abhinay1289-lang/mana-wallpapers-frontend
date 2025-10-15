@@ -16,6 +16,21 @@ export const getAllcategoriesStructure = createAsyncThunk(
   }
 );
 
+export const getWallpapers = createAsyncThunk(
+  "get-wallpapers",
+  async (payload, { rejectWithValue }) => {
+    try {
+      const response = await axiosClient.get("/wallpapers");
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data ||
+          "An error occurred while sending a productslist request."
+      );
+    }
+  }
+);
+
 export const uploadWallpaper = createAsyncThunk(
   "upload-wallpaper",
   async (payload, { rejectWithValue }) => {
