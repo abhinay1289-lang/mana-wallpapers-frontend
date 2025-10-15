@@ -25,17 +25,18 @@ import {
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
-import { registerUser } from "../store/thunks/authThunk";
+// import { useDispatch } from "react-redux";
+import { useRegisterMutation } from "../store/apis/authApi";
 
 const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+    const [registerUser] = useRegisterMutation();
   // const { register: registerUser } = useAuth();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   const {
     register,
@@ -52,26 +53,36 @@ const RegisterPage = () => {
     setIsLoading(true);
     setError("");
 
-    dispatch(
-      registerUser({
-        email: data.email,
-        password: data.password,
-        fullName: data.fullName,
-        role: data.role,
-      })
-    )
-      .then(() => {
-        setIsLoading(false);
+    await registerUser(data).unwrap().then(() => {
         toast.success("Registration successful! Please login.");
         navigate("/login");
-      })
-      .catch(() => {
-        const errorMessage =
-          error.response?.data?.message || "Registration failed";
-        setError(errorMessage);
-        toast.error(errorMessage);
-        setIsLoading(false);
-      });
+    }).catch(() => {  
+      const errorMessage =
+            error.response?.data?.message || "Registration failed";
+          setError(errorMessage);
+          toast.error(errorMessage);
+    });
+
+    // dispatch(
+    //   registerUser({
+    //     email: data.email,
+    //     password: data.password,
+    //     fullName: data.fullName,
+    //     role: data.role,
+    //   })
+    // )
+    //   .then(() => {
+    //     setIsLoading(false);
+    //     toast.success("Registration successful! Please login.");
+    //     navigate("/login");
+    //   })
+    //   .catch(() => {
+    //     const errorMessage =
+    //       error.response?.data?.message || "Registration failed";
+    //     setError(errorMessage);
+    //     toast.error(errorMessage);
+    //     setIsLoading(false);
+    //   });
   };
 
   return (

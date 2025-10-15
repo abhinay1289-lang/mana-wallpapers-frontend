@@ -1,11 +1,12 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { axiosClient } from "../../services/api";
+// import { axiosClient } from "../../services/api";
+import axios from "axios";
 
 export const getAllcategoriesStructure = createAsyncThunk(
   "get-all-categories-structure",
   async (payload, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.get("/wallpapers/all-category");
+      const response = await axios.get("/wallpapers/all-category");
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -20,7 +21,7 @@ export const getWallpapers = createAsyncThunk(
   "get-wallpapers",
   async (payload, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.get("/wallpapers");
+      const response = await axios.get("/wallpapers");
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -35,7 +36,7 @@ export const uploadWallpaper = createAsyncThunk(
   "upload-wallpaper",
   async (payload, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.post("/wallpapers", payload);
+      const response = await axios.post("/wallpapers", payload);
       return response.data;
     } catch (error) {
       return rejectWithValue(

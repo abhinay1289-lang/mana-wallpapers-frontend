@@ -44,6 +44,7 @@ import CookiePolicy from "./pages/CookiePolicy";
 import DMCA from "./pages/DMCA";
 
 import "./styles/globals.css";
+import { useGetAllcategoriesStructureQuery } from "./store/apis/wallpaperApi";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -108,6 +109,12 @@ const theme = createTheme({
 });
 
 const App = () => {
+  useGetAllcategoriesStructureQuery(undefined, {
+    refetchOnMountOrArgChange: false,
+    refetchOnFocus: false,
+    refetchOnReconnect: false,
+  });
+
 
   return (
     <QueryClientProvider client={queryClient}>

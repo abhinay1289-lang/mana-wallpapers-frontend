@@ -27,34 +27,31 @@ import toast from "react-hot-toast";
 import ThreeDBackground from "../components/common/ThreeDBackground";
 // import { categories } from "../data/categories";
 import { useDispatch, useSelector } from "react-redux";
-import globalObject from "../components/common/global-variables";
-import { getAllcategoriesStructure } from "../store/thunks/wallpaperThunk";
+import { useGetAllcategoriesStructureQuery } from "../store/apis/wallpaperApi";
 
 const HomePage = () => {
   const { user } = useAuth();
   const { addToCart } = useCart();
   const [categories, setCategories] = useState([]);
-  const { categories: categoriesList } = useSelector(
-    (state) => state.wallpaper
-  );
-  const dispatch = useDispatch();
-
-  const fetchCategories = useCallback(() => {
-    dispatch(getAllcategoriesStructure());
-  }, [categoriesList]);
+  const { data: categoriesMapList } = useGetAllcategoriesStructureQuery();
+  // const { categories: categoriesList } = useSelector(
+  //   (state) => state.wallpaper
+  // );
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    setCategories(categoriesMapList?.data)
+  },[categoriesMapList?.data])
+
+  console.log(categoriesMapList)
 
   const handleAddToCart = (wallpaper) => {
     addToCart(wallpaper);
     toast.success("Added to cart!");
   };
 
-  useEffect(() => {
-    setCategories(categoriesList);
-  }, [categoriesList]);
+  // useEffect(() => {
+  //   setCategories(categoriesList);
+  // }, [categoriesList]);
 
   return (
     <Box>
@@ -92,7 +89,7 @@ const HomePage = () => {
         </Typography>
 
         <Grid container spacing={4} style={{ justifyContent: "space-between" }}>
-          {categories.map((category) => (
+          {categories?.map((category) => (
             <Grid item xs={12} sm={6} md={3} key={category.name}>
               <Card
                 className="hover:shadow-lg transition-shadow cursor-pointer group transform hover:-translate-y-2"

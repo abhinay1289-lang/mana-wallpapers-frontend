@@ -1,10 +1,11 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import baseQueryWithErrorHandling from "../../services/api";
 
 export const wallpaperApi = createApi({
   reducerPath: "wallpaper",
-  baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
+  baseQuery: baseQueryWithErrorHandling,
   // for cache invalidation
-  tagTypes: ["wallpapers"],
+  tagTypes: ["wallpapers","all-categories"],
   endpoints: (builder) => ({
     uploadWallpaper: builder.mutation({
       query: (payload) => ({
@@ -15,6 +16,10 @@ export const wallpaperApi = createApi({
       // Auto refetch
       invalidatesTags: ["wallpapers"],
     }),
+    getWallpapers: builder.query({
+      query: () => "/wallpapers",
+      providesTags: ["wallpapers"],
+    }),
     getAllcategoriesStructure: builder.query({
       query: () => "/wallpapers/all-category",
       providesTags: ["all-categories"],
@@ -22,5 +27,5 @@ export const wallpaperApi = createApi({
   }),
 });
 
-export const { useUploadWallpaperMutation, useGetAllcategoriesStructureQuery } =
+export const { useUploadWallpaperMutation, useGetAllcategoriesStructureQuery,useGetWallpapersQuery } =
   wallpaperApi;

@@ -1,8 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import baseQueryWithErrorHandling from "../../services/api";
 
 export const authApi = createApi({
   reducerPath: "auth",
-  baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
+  baseQuery: baseQueryWithErrorHandling,
   // for cache invalidation
   tagTypes: ["user"],
   endpoints: (builder) => ({

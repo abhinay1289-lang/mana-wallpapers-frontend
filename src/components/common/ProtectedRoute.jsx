@@ -2,10 +2,11 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Box, CircularProgress } from "@mui/material";
 import { useSelector } from "react-redux";
+import { useUser } from "./Utils";
 
 const ProtectedRoute = ({ children, requiredRole }) => {
   // const { isAuthenticated, isLoading, user } = useAuth();
-  const { userType } = useSelector((state) => state.auth);
+  const user = useUser();
 
   // const location = useLocation();
 
@@ -16,14 +17,14 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   //     </Box>
   //   );
   // }
-  if (userType === "BUYER") {
+  if (user?.role === "BUYER") {
     // If seller tries to access a restricted route
     return <Navigate to="/home" />;
   }
-  if (requiredRole && userType !== requiredRole) {
+  if (requiredRole && user?.role !== requiredRole) {
     // If the role doesn't match, redirect to their dashboard
     return (
-      <Navigate to={userType === "BUYER" ? "/home" : "/admin/analytics"} />
+      <Navigate to={user?.role === "BUYER" ? "/home" : "/admin/analytics"} />
     );
   }
   return children;

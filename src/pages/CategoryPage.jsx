@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Grid,
@@ -51,6 +51,7 @@ import toast from "react-hot-toast";
 // import { categories } from "../data/categories";
 import { useSelector } from "react-redux";
 import globalObject from "../components/common/global-variables";
+import { useGetAllcategoriesStructureQuery } from "../store/apis/wallpaperApi";
 
 const iconMap = {
   Brush: <Brush />,
@@ -79,11 +80,13 @@ const CategoryPage = () => {
   const [priceFilter, setPriceFilter] = useState("");
   const [dimensionFilter, setDimensionFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState(slug || "all");
+  const [categories, setCategories] = useState([]);
   const { addToCart } = useCart();
-  // const { categories } = useSelector((state) => state.wallpaper);
-  const categories = globalObject.categories;
+  const { data: categoriesMapList } = useGetAllcategoriesStructureQuery();
 
-  console.log(slug, categories);
+  useEffect(() => {
+    setCategories(categoriesMapList?.data)
+  },[categoriesMapList?.data]);
 
   const getCategoryNameBySlug = (slug) => {
     if (!slug || slug === "all") {

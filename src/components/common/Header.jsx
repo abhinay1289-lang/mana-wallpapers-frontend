@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   AppBar,
   Toolbar,
-  Typography,
   Button,
   IconButton,
   Badge,
@@ -27,15 +26,15 @@ import {
   PhotoLibrary as WallpaperManagementIcon,
 } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
 import Search from "./Search";
-import { useSelector } from "react-redux";
+import { useUser } from "./Utils";
 
 const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { userType, isAuthenticated } = useSelector((state) => state.auth);
+  const user = useUser();
+  const token = localStorage.getItem("token");
 
   const { getItemCount } = useCart();
   const navigate = useNavigate();
@@ -143,7 +142,7 @@ const Header = () => {
           {/* Right side buttons */}
           <div className="flex items-center space-x-2">
             {/* Cart */}
-            {userType === "BUYER" && (
+            {user?.role === "BUYER" && (
               <IconButton
                 component={Link}
                 to="/buyer/cart"
@@ -157,7 +156,7 @@ const Header = () => {
             )}
 
             {/* User Menu or Login/Register */}
-            {isAuthenticated ? (
+            {token ? (
               <>
                 <IconButton
                   size="large"
@@ -187,7 +186,7 @@ const Header = () => {
                   onClose={handleMenuClose}
                   classes={{ paper: "bg-secondary-color text-text-color" }}
                 >
-                  {userType === "ADMIN"
+                  {user?.role === "ADMIN"
                     ? [
                         <MenuItem
                           key="dashboard"
