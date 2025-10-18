@@ -3,8 +3,8 @@ import { dummyWallpapers } from "../data/dummyWallpapers";
 
 export const wallpaperService = {
   getAllWallpapers: async () => {
-    const response = await api.get("/all-category");
-    return response.data;
+    // const response = await api.get("/all-category");
+    // return response.data;
   },
 
   getWallpaperById: async (id) => {

@@ -24,16 +24,19 @@ import {
 } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
+// import { useDispatch } from "react-redux";
+import { useRegisterMutation } from "../store/apis/authApi";
 
 const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { register: registerUser } = useAuth();
+    const [registerUser] = useRegisterMutation();
+  // const { register: registerUser } = useAuth();
   const navigate = useNavigate();
+  // const dispatch = useDispatch();
 
   const {
     register,
@@ -42,29 +45,44 @@ const RegisterPage = () => {
     formState: { errors },
   } = useForm();
 
+  // const handleSubmit = () => {}
+
   const password = watch("password");
 
   const onSubmit = async (data) => {
     setIsLoading(true);
     setError("");
 
-    try {
-      await registerUser({
-        email: data.email,
-        password: data.password,
-        fullName: data.fullName,
-        role: data.role,
-      });
-      toast.success("Registration successful! Please login.");
-      navigate("/login");
-    } catch (error) {
+    await registerUser(data).unwrap().then(() => {
+        toast.success("Registration successful! Please login.");
+        navigate("/login");
+    }).catch(() => {  
       const errorMessage =
-        error.response?.data?.message || "Registration failed";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+            error.response?.data?.message || "Registration failed";
+          setError(errorMessage);
+          toast.error(errorMessage);
+    });
+
+    // dispatch(
+    //   registerUser({
+    //     email: data.email,
+    //     password: data.password,
+    //     fullName: data.fullName,
+    //     role: data.role,
+    //   })
+    // )
+    //   .then(() => {
+    //     setIsLoading(false);
+    //     toast.success("Registration successful! Please login.");
+    //     navigate("/login");
+    //   })
+    //   .catch(() => {
+    //     const errorMessage =
+    //       error.response?.data?.message || "Registration failed";
+    //     setError(errorMessage);
+    //     toast.error(errorMessage);
+    //     setIsLoading(false);
+    //   });
   };
 
   return (
@@ -181,6 +199,17 @@ const RegisterPage = () => {
               startAdornment: (
                 <InputAdornment position="start">
                   <LockIcon color="action" />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
                 </InputAdornment>
               ),
             }}

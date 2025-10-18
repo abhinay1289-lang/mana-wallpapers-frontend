@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Paper,
@@ -19,18 +19,16 @@ import {
 } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import { useLoginMutation } from "../store/apis/authApi";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-
-  const { login } = useAuth();
+  const [login,{data,isSuccess}] = useLoginMutation();
   const navigate = useNavigate();
   const location = useLocation();
-
   const from = location.state?.from?.pathname || "/dashboard";
 
   const {
@@ -42,21 +40,25 @@ const LoginPage = () => {
   const onSubmit = async (data) => {
     setIsLoading(true);
     setError("");
-
     try {
-      await login(data).then((res) => {
-        localStorage.setItem("user", JSON.stringify(res.data));
-      });
+      await login(data);
       toast.success("Login successful!");
-      navigate(from, { replace: true });
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || "Login failed";
+    }
+    catch(err){
+      const errorMessage = err?.data?.message || "Login failed";
       setError(errorMessage);
       toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isSuccess && data?.data?.accessToken) {
+      localStorage.setItem("user",JSON.stringify(data?.data));
+      localStorage.setItem("token", data?.data?.accessToken);
+      navigate(from, { replace: true });
+    }
+  }, [isSuccess, data]);  
+
 
   return (
     <Container maxWidth="sm" className="py-8 sm:py-16">

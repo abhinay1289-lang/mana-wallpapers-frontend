@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Grid,
@@ -17,135 +17,343 @@ import {
   Select,
   InputLabel,
   Skeleton,
-  ListItemIcon,
-  ListItemText,
-  ListSubheader,
+  Pagination,
 } from "@mui/material";
 import {
   Search as SearchIcon,
   Download as DownloadIcon,
   ShoppingCart as CartIcon,
-  Brush,
-  CameraAlt,
-  Texture,
-  Title,
-  Animation,
-  ViewInAr,
-  ThreeDRotation,
-  Camera,
-  Business,
-  Landscape,
-  Pets,
-  Memory,
-  Theaters,
-  FilterVintage,
-  SportsEsports,
-  WbSunny,
-  Whatshot,
 } from "@mui/icons-material";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { wallpaperService } from "../services/wallpaperService";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
-import { categories } from "../data/categories";
-
-const iconMap = {
-  Brush: <Brush />,
-  CameraAlt: <CameraAlt />,
-  Texture: <Texture />,
-  Title: <Title />,
-  Animation: <Animation />,
-  ViewInAr: <ViewInAr />,
-  ThreeDRotation: <ThreeDRotation />,
-  Camera: <Camera />,
-  Business: <Business />,
-  Landscape: <Landscape />,
-  Pets: <Pets />,
-  Memory: <Memory />,
-  Theaters: <Theaters />,
-  FilterVintage: <FilterVintage />,
-  SportsEsports: <SportsEsports />,
-  WbSunny: <WbSunny />,
-  Whatshot: <Whatshot />,
-};
+import { useGetAllcategoriesStructureQuery, useGetWallpapersQuery } from "../store/apis/wallpaperApi";
 
 const CategoryPage = () => {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("createdAt");
   const [priceFilter, setPriceFilter] = useState("");
   const [dimensionFilter, setDimensionFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState(slug || "all");
+  const [categories, setCategories] = useState([]);
+  const [page, setPage] = useState(1);
   const { addToCart } = useCart();
+  const { data: categoriesMapList } = useGetAllcategoriesStructureQuery();
+
+  const [mainCategory, setMainCategory] = useState(slug || "all");
+  const [subCategory, setSubCategory] = useState("all");
+  const [miniSubCategory, setMiniSubCategory] = useState("all");
+  const [subCategories, setSubCategories] = useState([]);
+  const [miniSubCategories, setMiniSubCategories] = useState([]);
+  const { data, isLoading, isFetching } = useGetWallpapersQuery(miniSubCategory?.id, {
+    skip: !miniSubCategory?.id,
+  });
+  const [wallPapersList, setWallpapersList] = useState([]);
+
+  useEffect(() => {
+    setCategories(categoriesMapList?.data || []);
+  }, [categoriesMapList?.data]);
+
+  useEffect(() => {
+    setWallpapersList(data?.data)
+  },[data?.data])
+
+  useEffect(() => {
+    filterAndSortWallpapers();
+  }, [searchTerm, sortBy, priceFilter]);
+
+
+  const filterAndSortWallpapers = () => {
+    if (!data?.data) return [];
+    let filtered = data?.data;
+
+    if(searchTerm) {
+      filtered = filtered.filter((wallpaper) =>
+        wallpaper.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    if (priceFilter) {
+      filtered = filtered.filter((wallpaper) => wallpaper.isFree);
+    } else if (priceFilter === false) {
+      filtered = filtered.filter((wallpaper) => !wallpaper.isFree);
+    }
+    switch (sortBy) {
+      case "createdAt":
+        filtered.sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        break;
+      case "title":
+        filtered.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case "title-desc":
+        filtered.sort((a, b) => b.title.localeCompare(a.title));
+        break;
+      case "priceCents":
+        filtered.sort((a, b) => (a.priceCents || 0) - (b.priceCents || 0));
+        break;
+      case "priceCents-desc":
+        filtered.sort((a, b) => (b.priceCents || 0) - (a.priceCents || 0));
+        break;
+      default:
+        break;
+    } 
+    setWallpapersList(filtered)
+  }
+
+
+  useEffect(() => {
+    if (mainCategory === "all") {
+      setSubCategories([]);
+      setSubCategory("all");
+    } else {
+      const mainCat = categories.find(
+        (cat) => cat.name.toLowerCase().replace(/ /g, "-") === mainCategory
+      );
+      setSubCategories(mainCat?.subCategories || []);
+      setSubCategory("all");
+    }
+    setMiniSubCategories([]);
+    setMiniSubCategory("all");
+  }, [mainCategory, categories]);
+
+  useEffect(() => {
+    if (subCategory === "all") {
+      setMiniSubCategories([]);
+      setMiniSubCategory("all");
+    } else {
+      const subCat = subCategories.find(
+        (cat) => cat.name.toLowerCase().replace(/ /g, "-") === subCategory
+      );
+      setMiniSubCategories(subCat?.items || []);
+      setMiniSubCategory("all");
+    }
+  }, [subCategory, subCategories]);
+
+  useEffect(() => {
+    let activeFilter = "all";
+    if (miniSubCategory !== "all") {
+      activeFilter = miniSubCategory;
+    } else if (subCategory !== "all") {
+      activeFilter = subCategory;
+    } else {
+      activeFilter = mainCategory;
+    }
+    setCategoryFilter(activeFilter);
+    setPage(1); // Reset page when filters change
+  }, [mainCategory, subCategory, miniSubCategory]);
 
   const getCategoryNameBySlug = (slug) => {
-    if (!slug || slug === "all") {
-      return "All Wallpapers";
-    }
+    if (!slug || slug === "all") return "All Wallpapers";
     for (const mainCat of categories) {
-      const mainCatSlug = mainCat.name.toLowerCase().replace(/ /g, '-');
-      if (mainCatSlug === slug) {
-        return mainCat.name;
-      }
+      if (mainCat.name.toLowerCase().replace(/ /g, "-") === slug) return mainCat.name;
       for (const subCat of mainCat.subCategories) {
-        const subCatSlug = subCat.name.toLowerCase().replace(/ /g, '-');
-        if (subCatSlug === slug) {
-          return subCat.name;
-        }
+        if (subCat.name.toLowerCase().replace(/ /g, "-") === slug) return subCat.name;
         for (const item of subCat.items) {
-          const itemSlug = item.toLowerCase().replace(/ /g, '-');
-          if (itemSlug === slug) {
-            return item;
-          }
+          if (item.name.toLowerCase().replace(/ /g, "-") === slug) return item.name;
         }
       }
     }
     return "All Wallpapers";
   };
 
-  const { data: wallpapersData, isLoading } = useQuery({
-    queryKey: [
-      "wallpapers",
-      categoryFilter,
-      searchTerm,
-      sortBy,
-      priceFilter,
-      dimensionFilter,
-    ],
-    queryFn: () =>
-      wallpaperService.getAllWallpapers({
-        category: categoryFilter === "all" ? undefined : categoryFilter,
-        q: searchTerm || undefined,
-        sortBy,
-        free: priceFilter === "" ? undefined : priceFilter === "true",
-        dimension: dimensionFilter === "" ? undefined : dimensionFilter,
-        page: 0,
-        size: 24,
-      }),
-  });
-
   const handleAddToCart = (wallpaper) => {
     addToCart(wallpaper);
     toast.success("Added to cart!");
+  };
+
+  const handleCategoryCardClick = (categorySlug, level) => {
+    if (level === 'sub') {
+      setSubCategory(categorySlug)
+    }
+  };
+
+  const handleDownload =  (url, filename) => {
+    fetch(url)
+    .then(response => response.blob())
+    .then(blob => {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+    });
+  };
+
+  const renderContent = () => {
+    if (isLoading || isFetching) {
+      return Array.from({ length: 10 }).map((_, index) => (
+        <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+          <Card>
+            <Skeleton variant="rectangular" height={200} />
+            <CardContent>
+              <Skeleton variant="text" height={30} />
+              <Skeleton variant="text" height={20} width="60%" />
+            </CardContent>
+          </Card>
+        </Grid>
+      ));
+    }
+
+    if (mainCategory === 'all') {
+      return categories.map((cat) => (
+        <Grid item xs={12} sm={6} md={4} lg={3} key={cat.name}>
+                <Card style={{cursor:'pointer'}} className="hover:shadow-lg transition-shadow group h-full flex flex-col" onClick={() => {setMainCategory(cat.name.toLowerCase().replace(/ /g, "-"));handleCategoryCardClick(cat.name.toLowerCase().replace(/ /g, "-"), 'sub')}}>
+          <Box className="relative overflow-hidden">
+              <CardMedia
+                component="img"
+                height="200"
+                image={cat.name.toLowerCase().replace(/ /g, "-").includes('2d') ? 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/2D-Wallpapers/2d-category.png' : cat.name.toLowerCase().replace(/ /g, "-").includes('3d') ? 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/3D-Wallpapers/3d-category.png' : 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/Other-Popular-Categories/nature-wallpaper.png'}
+                alt={'Media'}
+                className="group-hover:scale-105 transition-transform duration-300"
+              />
+            </Box>
+             <CardContent className="flex-1">
+              <Typography variant="h6" className="font-semibold truncate">{cat.name}</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      ));
+    }
+
+    // Show sub-categories
+    if (mainCategory !== 'all' && subCategory === 'all') {
+      return subCategories.map((subCat) => (
+        <Grid item xs={12} sm={6} md={4} lg={3} key={subCat.name}>
+           <Card className="hover:shadow-lg transition-shadow group h-full flex flex-col" onClick={() => {setSubCategory(subCat.name.toLowerCase().replace(/ /g, "-")); handleCategoryCardClick(subCat.name.toLowerCase().replace(/ /g, "-"), 'mini')}}>
+          <Box className="relative overflow-hidden">
+              <CardMedia
+                component="img"
+                height="200"
+                image={
+                  subCat.name.toLowerCase().replace(/ /g, "-").includes('illustration') ? 
+                  'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/2D-Wallpapers/Illustration%20&%20Art/illustration-and-art-wallpaper.png' : 
+                  subCat.name.toLowerCase().replace(/ /g, "-").includes('photography') ? 
+                  'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/2D-Wallpapers/Photography/photography-wallpaper.png' : 
+                  subCat.name.toLowerCase().replace(/ /g, "-").includes('typography') ?
+                   'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/2D-Wallpapers/Typography/typography-wallpaper.png' :
+                  subCat.name.toLowerCase().replace(/ /g, "-").includes('patterns') ? 
+                  'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/2D-Wallpapers/Patterns%20&%20Abstract/patterns-and-abstract-wallpaper.png' 
+                  : subCat.name.toLowerCase().replace(/ /g, "-").includes('cartoons') ? 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/2D-Wallpapers/Cartoons%20&%20Comics/cartoons-and-comics-wallpaper.png' : ''
+                   
+                }
+                alt={'Media'}
+                className="group-hover:scale-105 transition-transform duration-300"
+              />
+            </Box>
+            <CardContent className="flex-1">
+              <Typography variant="h6" className="font-semibold truncate">{subCat.name}</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      ));
+    }
+
+    // Show mini-sub-categories
+    if (subCategory !== 'all' && miniSubCategory === 'all') {
+      return miniSubCategories.map((item) => (
+        <Grid item xs={12} sm={6} md={4} lg={3} key={item.name}>
+          <Card className="hover:shadow-lg transition-shadow group h-full flex flex-col" onClick={() => {setMiniSubCategory(item); handleCategoryCardClick(item.name.toLowerCase().replace(/ /g, "-"), 'mini')}}>
+          <Box className="relative overflow-hidden">
+              <CardMedia
+                component="img"
+                height="200"
+                image={ 'https://via.placeholder.com/300x200?text=Wallpaper'}
+                alt={'Media'}
+                className="group-hover:scale-105 transition-transform duration-300"
+              />
+              {true && (
+                <Chip label="FREE" color="success" size="small" className="absolute top-2 left-2" />
+              )}
+            </Box>
+             <CardContent className="flex-1">
+              <Typography variant="h6" className="font-semibold truncate">{item.name}</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      ));
+    }
+
+    // Show wallpapers
+    if (wallPapersList?.length > 0) {
+      return wallPapersList?.map((wallpaper) => (
+        <Grid item xs={12} sm={6} md={4} lg={3} key={wallpaper.id}>
+          <Card className="hover:shadow-lg transition-shadow group h-full flex flex-col">
+            <Box className="relative overflow-hidden">
+              <CardMedia
+                component="img"
+                height="200"
+                image={wallpaper.fileKey}
+                alt={wallpaper.title}
+                loading="lazy"
+                className="group-hover:scale-105 transition-transform duration-300"
+              />
+              {wallpaper.isFree && (
+                <Chip label="FREE" color="success" size="small" className="absolute top-2 left-2" />
+              )}
+            </Box>
+            <CardContent className="flex-1">
+              <Typography variant="h6" className="font-semibold truncate">{wallpaper.title}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                {wallpaper.resolution} • {wallpaper.format}
+              </Typography>
+              {!wallpaper.isFree && (
+                <Typography variant="h6" color="primary" className="font-bold mt-1">
+                  ₹{wallpaper.priceCents}
+                </Typography>
+              )}
+            </CardContent>
+            <CardActions className="p-4 pt-0">
+              <Button
+                fullWidth
+                variant={wallpaper.isFree ? "outlined" : "contained"}
+                startIcon={wallpaper.isFree ? <DownloadIcon /> : <CartIcon />}
+                onClick={() =>
+                  wallpaper.isFree
+                    ? handleDownload(wallpaper.fileKey, `${wallpaper.title}.png`)
+                    : handleAddToCart(wallpaper)
+                }
+              >
+                {wallpaper.isFree ? "Download" : "Add to Cart"}
+              </Button>
+            </CardActions>
+          </Card>
+        </Grid>
+      ));
+    } 
+
+    return (
+      <Grid item xs={12}>
+        <Box className="text-center py-16">
+          <Typography variant="h5" color="text.secondary">No content found</Typography>
+          <Typography variant="body1" color="text.secondary" className="mt-2">
+            Try adjusting your search or filter criteria
+          </Typography>
+        </Box>
+      </Grid>
+    );
   };
 
   const categoryName = getCategoryNameBySlug(categoryFilter);
 
   return (
     <Container maxWidth="xl" className="py-4 sm:py-8">
-      {/* Header */}
       <Box className="mb-8">
         <Typography variant="h4" component="h1" className="font-bold mb-4">
           {categoryName}
         </Typography>
 
-        {/* Filters */}
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={3}>
+        <Grid item xs={12} md={3}>
             <TextField
               fullWidth
-              placeholder="Search wallpapers..."
+              placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               InputProps={{
@@ -159,35 +367,64 @@ const CategoryPage = () => {
           </Grid>
 
           <Grid item xs={12} sm={6} md={2}>
-             <FormControl fullWidth>
+            <FormControl fullWidth>
               <InputLabel>Category</InputLabel>
               <Select
-                value={categoryFilter}
+                value={mainCategory}
                 label="Category"
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                renderValue={(selected) => getCategoryNameBySlug(selected)}
+                onChange={(e) => {setMainCategory(e.target.value)}}
               >
                 <MenuItem value="all">All</MenuItem>
-                {categories.map(mainCat => {
-                  const items = [];
-                  items.push(<ListSubheader key={mainCat.name}>{mainCat.name}</ListSubheader>);
-                  mainCat.subCategories.forEach(subCat => {
-                    items.push(
-                      <MenuItem key={subCat.name} value={subCat.name.toLowerCase().replace(/ /g, '-')} >
-                        {iconMap[subCat.icon] && <ListItemIcon>{iconMap[subCat.icon]}</ListItemIcon>}
-                        <ListItemText primary={subCat.name} />
-                      </MenuItem>
-                    );
-                    subCat.items.forEach(item => {
-                      items.push(
-                        <MenuItem key={item} value={item.toLowerCase().replace(/ /g, '-')} style={{ paddingLeft: '3em' }}>
-                          <ListItemText primary={item} />
-                        </MenuItem>
-                      );
-                    });
-                  });
-                  return items;
-                })}
+                {categories.map((mainCat) => (
+                  <MenuItem
+                    key={mainCat.name}
+                    value={mainCat.name.toLowerCase().replace(/ /g, "-")}
+                  >
+                    {mainCat.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={2}>
+            <FormControl fullWidth disabled={!subCategories.length}>
+              <InputLabel>Sub Category</InputLabel>
+              <Select
+                value={subCategory}
+                label="Sub Category"
+                onChange={(e) => setSubCategory(e.target.value)}
+              >
+                <MenuItem value="all">All</MenuItem>
+                {subCategories.map((subCat) => (
+                  <MenuItem
+                    key={subCat.name}
+                    value={subCat.name.toLowerCase().replace(/ /g, "-")}
+                  >
+                    {subCat.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={2}>
+            <FormControl fullWidth disabled={!miniSubCategories.length}>
+              <InputLabel>Mini Sub Category</InputLabel>
+              <Select
+                value={miniSubCategory}
+                label="Mini Sub Category"
+                onChange={(e) => {setMiniSubCategory(e.target.value)}}
+              >
+                <MenuItem value="all">All</MenuItem>
+                {miniSubCategories.map((item) => (
+                  <MenuItem
+                    key={item.name}
+                    value={item}
+                  >
+                    {item.name}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Grid>
@@ -218,9 +455,9 @@ const CategoryPage = () => {
                 label="Price"
                 onChange={(e) => setPriceFilter(e.target.value)}
               >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="true">Free</MenuItem>
-                <MenuItem value="false">Paid</MenuItem>
+                <MenuItem value={undefined}>All</MenuItem>
+                <MenuItem value={true}>Free</MenuItem>
+                <MenuItem value={false}>Paid</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -242,100 +479,20 @@ const CategoryPage = () => {
         </Grid>
       </Box>
 
-      {/* Results */}
       <Grid container spacing={3}>
-        {isLoading ? (
-          // Loading skeletons
-          Array.from({ length: 12 }).map((_, index) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-              <Card>
-                <Skeleton variant="rectangular" height={200} />
-                <CardContent>
-                  <Skeleton variant="text" height={30} />
-                  <Skeleton variant="text" height={20} width="60%" />
-                </CardContent>
-              </Card>
-            </Grid>
-          ))
-        ) : wallpapersData?.data?.content?.length > 0 ? (
-          wallpapersData.data.content.map((wallpaper) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={wallpaper.id}>
-              <Card className="hover:shadow-lg transition-shadow group h-full flex flex-col">
-                <Box className="relative overflow-hidden">
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={
-                      wallpaper.thumbnailUrl ||
-                      "https://via.placeholder.com/300x200?text=Wallpaper"
-                    }
-                    alt={wallpaper.title}
-                    className="group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {wallpaper.isFree && (
-                    <Chip
-                      label="FREE"
-                      color="success"
-                      size="small"
-                      className="absolute top-2 left-2"
-                    />
-                  )}
-                </Box>
-
-                <CardContent className="flex-1">
-                  <Typography variant="h6" className="font-semibold truncate">
-                    {wallpaper.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {wallpaper.resolution} • {wallpaper.format}
-                  </Typography>
-                  {!wallpaper.isFree && (
-                    <Typography
-                      variant="h6"
-                      color="primary"
-                      className="font-bold mt-1"
-                    >
-                      ₹{wallpaper.priceCents}
-                    </Typography>
-                  )}
-                </CardContent>
-
-                <CardActions className="p-4 pt-0">
-                  <Button
-                    fullWidth
-                    variant={wallpaper.isFree ? "outlined" : "contained"}
-                    startIcon={
-                      wallpaper.isFree ? <DownloadIcon /> : <CartIcon />
-                    }
-                    onClick={() =>
-                      wallpaper.isFree
-                        ? window.open(`/wallpaper/${wallpaper.id}`, "_blank")
-                        : handleAddToCart(wallpaper)
-                    }
-                  >
-                    {wallpaper.isFree ? "Download" : "Add to Cart"}
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))
-        ) : (
-          <Grid item xs={12}>
-            <Box className="text-center py-16">
-              <Typography variant="h5" color="text.secondary">
-                No wallpapers found
-              </Typography>
-              <Typography
-                variant="body1"
-                color="text.secondary"
-                className="mt-2"
-              >
-                Try adjusting your search or filter criteria
-              </Typography>
-            </Box>
-          </Grid>
-        )}
+        {renderContent()}
       </Grid>
+
+      {data?.data.length > 1 && (
+        <Box display="flex" justifyContent="center" mt={4}>
+          <Pagination
+            count={data.data.length}
+            page={page}
+            onChange={(_, value) => setPage(value)}
+            color="primary"
+          />
+        </Box>
+      )}
     </Container>
   );
 };

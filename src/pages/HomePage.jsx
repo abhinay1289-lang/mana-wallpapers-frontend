@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Container,
   Typography,
@@ -25,21 +25,33 @@ import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
 import ThreeDBackground from "../components/common/ThreeDBackground";
-import { categories } from "../data/categories";
+// import { categories } from "../data/categories";
+import { useDispatch, useSelector } from "react-redux";
+import { useGetAllcategoriesStructureQuery } from "../store/apis/wallpaperApi";
 
 const HomePage = () => {
   const { user } = useAuth();
   const { addToCart } = useCart();
+  const [categories, setCategories] = useState([]);
+  const { data: categoriesMapList } = useGetAllcategoriesStructureQuery();
+  // const { categories: categoriesList } = useSelector(
+  //   (state) => state.wallpaper
+  // );
 
-  const { data: wallpapersData, isLoading } = useQuery({
-    queryKey: ["wallpapers", { page: 0, size: 12 }],
-    queryFn: () => wallpaperService.getAllWallpapers({ page: 0, size: 12 }),
-  });
+  useEffect(() => {
+    setCategories(categoriesMapList?.data)
+  },[categoriesMapList?.data])
+
+  console.log(categoriesMapList)
 
   const handleAddToCart = (wallpaper) => {
     addToCart(wallpaper);
     toast.success("Added to cart!");
   };
+
+  // useEffect(() => {
+  //   setCategories(categoriesList);
+  // }, [categoriesList]);
 
   return (
     <Box>
@@ -76,15 +88,18 @@ const HomePage = () => {
           Browse by Category
         </Typography>
 
-        <Grid container spacing={4} style={{justifyContent: "space-between"}}>
-          {categories.map((category) => (
+        <Grid container spacing={4} style={{ justifyContent: "space-between" }}>
+          {categories?.map((category) => (
             <Grid item xs={12} sm={6} md={3} key={category.name}>
               <Card
                 className="hover:shadow-lg transition-shadow cursor-pointer group transform hover:-translate-y-2"
                 component={Link}
-                to={`/category/${category.name.toLowerCase().replace(/ /g, '-')}`}
-                 sx={{
-                  transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+                to={`/category/${category.name
+                  ?.toLowerCase()
+                  ?.replace(/ /g, "-")}`}
+                sx={{
+                  transition:
+                    "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
                   "&:hover": {
                     transform: "scale(1.05)",
                     boxShadow: "0 10px 20px rgba(0,0,0,0.2)",
@@ -120,7 +135,7 @@ const HomePage = () => {
             Featured Wallpapers
           </Typography>
 
-          <Grid container spacing={3}>
+          {/* <Grid container spacing={3}>
             {isLoading
               ? Array.from({ length: 8 }).map((_, index) => (
                   <Grid item xs={12} sm={6} md={3} key={index}>
@@ -204,7 +219,7 @@ const HomePage = () => {
                     </Card>
                   </Grid>
                 ))}
-          </Grid>
+          </Grid> */}
 
           <Box className="text-center mt-8">
             <Button
