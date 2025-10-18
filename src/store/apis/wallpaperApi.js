@@ -17,7 +17,10 @@ export const wallpaperApi = createApi({
       invalidatesTags: ["wallpapers"],
     }),
     getWallpapers: builder.query({
-      query: () => "/wallpapers",
+      query: (typeId) => ({
+        url: "/wallpapers",
+        params: typeId ? { typeId } : {}, 
+      }),
       providesTags: ["wallpapers"],
     }),
     getAllcategoriesStructure: builder.query({

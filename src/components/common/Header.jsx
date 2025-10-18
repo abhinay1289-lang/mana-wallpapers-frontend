@@ -113,30 +113,6 @@ const Header = () => {
             >
               Home
             </Button>
-            <Button
-              component={Link}
-              to="/category/nature"
-              style={{ color: "#fff" }}
-              className="hover:text-indigo-400"
-            >
-              Nature
-            </Button>
-            <Button
-              component={Link}
-              to="/category/abstract"
-              style={{ color: "#fff" }}
-              className="hover:text-indigo-400"
-            >
-              Abstract
-            </Button>
-            <Button
-              component={Link}
-              to="/category/technology"
-              style={{ color: "#fff" }}
-              className="hover:text-indigo-400"
-            >
-              Technology
-            </Button>
           </div>
 
           {/* Right side buttons */}
