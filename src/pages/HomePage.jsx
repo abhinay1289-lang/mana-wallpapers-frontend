@@ -109,10 +109,11 @@ const HomePage = () => {
                 <CardMedia
                   component="img"
                   height="200"
-                  image={`https://source.unsplash.com/300x200/?${category.name}`}
+                  image={category.name.toLowerCase().replace(/ /g, "-").includes('2d') ? 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/2D-Wallpapers/2d-category.png' : category.name.toLowerCase().replace(/ /g, "-").includes('3d') ? 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/3D-Wallpapers/3d-category.png' : 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/Other-Popular-Categories/nature-wallpaper.png'}
                   alt={category.name}
                   className="group-hover:opacity-80 transition-opacity"
                   style={{ borderRadius: "1rem" }}
+                  onContextMenu={(e) => e.preventDefault()}
                 />
                 <CardContent className="text-center">
                   <Typography variant="h6" className="font-semibold">

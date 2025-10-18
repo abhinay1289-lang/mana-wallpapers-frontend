@@ -209,6 +209,7 @@ const CategoryPage = () => {
               <CardMedia
                 component="img"
                 height="200"
+                onContextMenu={(e) => e.preventDefault()}
                 image={cat.name.toLowerCase().replace(/ /g, "-").includes('2d') ? 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/2D-Wallpapers/2d-category.png' : cat.name.toLowerCase().replace(/ /g, "-").includes('3d') ? 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/3D-Wallpapers/3d-category.png' : 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/Other-Popular-Categories/nature-wallpaper.png'}
                 alt={'Media'}
                 className="group-hover:scale-105 transition-transform duration-300"
@@ -231,6 +232,7 @@ const CategoryPage = () => {
               <CardMedia
                 component="img"
                 height="200"
+                onContextMenu={(e) => e.preventDefault()}
                 image={
                   subCat.name.toLowerCase().replace(/ /g, "-").includes('illustration') ? 
                   'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/2D-Wallpapers/Illustration%20&%20Art/illustration-and-art-wallpaper.png' : 
@@ -264,6 +266,7 @@ const CategoryPage = () => {
               <CardMedia
                 component="img"
                 height="200"
+                onContextMenu={(e) => e.preventDefault()}
                 image={ 'https://via.placeholder.com/300x200?text=Wallpaper'}
                 alt={'Media'}
                 className="group-hover:scale-105 transition-transform duration-300"
@@ -289,6 +292,7 @@ const CategoryPage = () => {
               <CardMedia
                 component="img"
                 height="200"
+                onContextMenu={(e) => e.preventDefault()}
                 image={wallpaper.fileKey}
                 alt={wallpaper.title}
                 loading="lazy"
@@ -350,8 +354,9 @@ const CategoryPage = () => {
         </Typography>
 
         <Grid container spacing={2} alignItems="center">
-        <Grid item xs={12} md={3}>
+        <Grid item xs={12} md={3} >
             <TextField
+            style={{borderRadius:'2rem'}}
               fullWidth
               placeholder="Search..."
               value={searchTerm}

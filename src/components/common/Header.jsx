@@ -11,6 +11,8 @@ import {
   List,
   ListItem,
   ListItemText,
+  ListItemIcon,
+  Divider,
 } from "@mui/material";
 import {
   ShoppingCart as ShoppingCartIcon,
@@ -72,15 +74,120 @@ const Header = () => {
         <ListItem button component={Link} to="/">
           <ListItemText primary="Home" />
         </ListItem>
-        <ListItem button component={Link} to="/category/nature">
-          <ListItemText primary="Nature" />
-        </ListItem>
-        <ListItem button component={Link} to="/category/abstract">
-          <ListItemText primary="Abstract" />
-        </ListItem>
-        <ListItem button component={Link} to="/category/technology">
-          <ListItemText primary="Technology" />
-        </ListItem>
+        <Divider />
+        {token ? (
+          <>
+            {user?.role === "ADMIN"
+              ? [
+                  <ListItem button component={Link} to="/admin" key="dashboard">
+                    <ListItemIcon>
+                      <DashboardIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Dashboard" />
+                  </ListItem>,
+                  <ListItem
+                    button
+                    component={Link}
+                    to="/admin/wallpapers"
+                    key="wallpaper-management"
+                  >
+                    <ListItemIcon>
+                      <WallpaperManagementIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Wallpaper Management" />
+                  </ListItem>,
+                  <ListItem
+                    button
+                    component={Link}
+                    to="/admin/users"
+                    key="user-management"
+                  >
+                    <ListItemIcon>
+                      <PeopleIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="User Management" />
+                  </ListItem>,
+                  <ListItem
+                    button
+                    component={Link}
+                    to="/admin/upload-wallpaper"
+                    key="upload-wallpaper"
+                  >
+                    <ListItemIcon>
+                      <CloudUploadIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Upload Wallpaper" />
+                  </ListItem>,
+                  <ListItem
+                    button
+                    component={Link}
+                    to="/admin/analytics"
+                    key="analytics"
+                  >
+                    <ListItemIcon>
+                      <BarChartIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Analytics" />
+                  </ListItem>,
+                  <ListItem
+                    button
+                    component={Link}
+                    to="/admin/reports"
+                    key="reports"
+                  >
+                    <ListItemIcon>
+                      <ReportsIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Reports" />
+                  </ListItem>,
+                  <ListItem
+                    button
+                    component={Link}
+                    to="/admin/settings"
+                    key="settings"
+                  >
+                    <ListItemIcon>
+                      <SettingsIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Settings" />
+                  </ListItem>,
+                  <ListItem button onClick={handleLogout} key="logout">
+                    <ListItemIcon>
+                      <LogoutIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Logout" />
+                  </ListItem>,
+                ]
+              : [
+                  <ListItem
+                    button
+                    component={Link}
+                    to="/buyer/dashboard"
+                    key="dashboard"
+                  >
+                    <ListItemIcon>
+                      <DashboardIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Dashboard" />
+                  </ListItem>,
+                  <ListItem button onClick={handleLogout} key="logout">
+                    <ListItemIcon>
+                      <LogoutIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Logout" />
+                  </ListItem>,
+                ]}
+          </>
+        ) : (
+          <>
+            <ListItem button component={Link} to="/login">
+              <ListItemText primary="Login" />
+            </ListItem>
+            <ListItem button component={Link} to="/register">
+              <ListItemText primary="Register" />
+            </ListItem>
+          </>
+        )}
       </List>
     </div>
   );
