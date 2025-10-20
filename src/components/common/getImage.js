@@ -16,18 +16,17 @@ const getImage = (categoryName) => {
     cartoons: 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/2D-Wallpapers/Cartoons%20&%20Comics/cartoons-and-comics-wallpaper.png',
     '3d-model' : 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/3D-Wallpapers/3D%20Models/3d-models.png',
     architectural:'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/3D-Wallpapers/Architectural%20Visualization/architectural-visualization.png',
-    rendered : 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/3D-Wallpapers/Rendered%20Art/rendered-art.png',
+    'rendered' : 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/3D-Wallpapers/Rendered%20Art/rendered-art.png',
     virtual : 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/3D-Wallpapers/Virtual%20Photography/virtual.png',
     // Main Categories
     '2d': 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/2D-Wallpapers/2d-category.png',
     '3d': 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/3D-Wallpapers/3d-category.png',
-    'other-popular': 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/Other-Popular-Categories/nature-wallpaper.png'
+    'other-popular': 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/Other-Popular-Categories/other-popular.png'
   };
 
   const normalizedName = categoryName.toLowerCase().replace(/ /g, "-");
-  
   // Find matching category or return default image
-  return Object.entries(imageMap).find(([key]) => normalizedName.includes(key))?.[1] || imageMap.nature;
+  return Object.entries(imageMap).find(([key]) => normalizedName.includes(key))?.[1];
 };
 
 export default getImage;

@@ -22,6 +22,7 @@ import { Link } from "react-router-dom";
 import ThreeDBackground from "../components/common/ThreeDBackground";
 import { useAuth } from "../context/AuthContext";
 import { useGetAllcategoriesStructureQuery } from "../store/apis/wallpaperApi";
+import getImage from "../components/common/getImage";
 
 const HomePage = () => {
   const { user } = useAuth();
@@ -126,6 +127,7 @@ const HomePage = () => {
           >
             <SearchIcon sx={{ marginLeft: 1, opacity: 0.8 }} />
             <input
+              style={{ border: "none" }}
               placeholder="Search wallpapers, e.g. forests, abstract, 3D"
               className="w-full bg-transparent outline-none px-4 py-2 text-white placeholder:opacity-70"
             />
@@ -226,7 +228,7 @@ const HomePage = () => {
                     <div className="card-media-wrap">
                       <CardMedia
                         component="img"
-                        image={getCategoryImage(category.name)}
+                        image={getImage(category.name)}
                         alt={category.name}
                         className="card-media"
                         onContextMenu={(e) => e.preventDefault()}
@@ -275,11 +277,12 @@ const HomePage = () => {
       <style>{`
         /* Masonry container built with CSS columns */
         .masonry-container {
+          display:flex;
           column-count: 1;
         }
-        @media (min-width: 640px) { .masonry-container { column-count: 2; } }
-        @media (min-width: 960px) { .masonry-container { column-count: 3; } }
-        @media (min-width: 1280px) { .masonry-container { column-count: 4; } }
+        @media (min-width: 640px) { .masonry-container {display:flex; column-count: 2; } }
+        @media (min-width: 960px) { .masonry-container {display:flex; column-count: 3; } }
+        @media (min-width: 1280px) { .masonry-container {display:flex; column-count: 4; } }
 
         .masonry-item { 
           break-inside: avoid;
