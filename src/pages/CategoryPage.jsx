@@ -29,7 +29,11 @@ import { useQuery } from "@tanstack/react-query";
 import { wallpaperService } from "../services/wallpaperService";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
-import { useGetAllcategoriesStructureQuery, useGetWallpapersQuery } from "../store/apis/wallpaperApi";
+import {
+  useGetAllcategoriesStructureQuery,
+  useGetWallpapersQuery,
+} from "../store/apis/wallpaperApi";
+import getImage from "../components/common/getImage";
 
 const CategoryPage = () => {
   const { slug } = useParams();
@@ -49,9 +53,12 @@ const CategoryPage = () => {
   const [miniSubCategory, setMiniSubCategory] = useState("all");
   const [subCategories, setSubCategories] = useState([]);
   const [miniSubCategories, setMiniSubCategories] = useState([]);
-  const { data, isLoading, isFetching } = useGetWallpapersQuery(miniSubCategory?.id, {
-    skip: !miniSubCategory?.id,
-  });
+  const { data, isLoading, isFetching } = useGetWallpapersQuery(
+    miniSubCategory?.id,
+    {
+      skip: !miniSubCategory?.id,
+    }
+  );
   const [wallPapersList, setWallpapersList] = useState([]);
 
   useEffect(() => {
@@ -59,19 +66,18 @@ const CategoryPage = () => {
   }, [categoriesMapList?.data]);
 
   useEffect(() => {
-    setWallpapersList(data?.data)
-  },[data?.data])
+    setWallpapersList(data?.data);
+  }, [data?.data]);
 
   useEffect(() => {
     filterAndSortWallpapers();
   }, [searchTerm, sortBy, priceFilter]);
 
-
   const filterAndSortWallpapers = () => {
     if (!data?.data) return [];
     let filtered = data?.data;
 
-    if(searchTerm) {
+    if (searchTerm) {
       filtered = filtered.filter((wallpaper) =>
         wallpaper.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
@@ -84,7 +90,8 @@ const CategoryPage = () => {
     switch (sortBy) {
       case "createdAt":
         filtered.sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         break;
       case "title":
@@ -101,10 +108,9 @@ const CategoryPage = () => {
         break;
       default:
         break;
-    } 
-    setWallpapersList(filtered)
-  }
-
+    }
+    setWallpapersList(filtered);
+  };
 
   useEffect(() => {
     if (mainCategory === "all") {
@@ -150,11 +156,14 @@ const CategoryPage = () => {
   const getCategoryNameBySlug = (slug) => {
     if (!slug || slug === "all") return "All Wallpapers";
     for (const mainCat of categories) {
-      if (mainCat.name.toLowerCase().replace(/ /g, "-") === slug) return mainCat.name;
+      if (mainCat.name.toLowerCase().replace(/ /g, "-") === slug)
+        return mainCat.name;
       for (const subCat of mainCat.subCategories) {
-        if (subCat.name.toLowerCase().replace(/ /g, "-") === slug) return subCat.name;
+        if (subCat.name.toLowerCase().replace(/ /g, "-") === slug)
+          return subCat.name;
         for (const item of subCat.items) {
-          if (item.name.toLowerCase().replace(/ /g, "-") === slug) return item.name;
+          if (item.name.toLowerCase().replace(/ /g, "-") === slug)
+            return item.name;
         }
       }
     }
@@ -167,23 +176,23 @@ const CategoryPage = () => {
   };
 
   const handleCategoryCardClick = (categorySlug, level) => {
-    if (level === 'sub') {
-      setSubCategory(categorySlug)
+    if (level === "sub") {
+      setSubCategory(categorySlug);
     }
   };
 
-  const handleDownload =  (url, filename) => {
+  const handleDownload = (url, filename) => {
     fetch(url)
-    .then(response => response.blob())
-    .then(blob => {
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(link.href);
-    });
+      .then((response) => response.blob())
+      .then((blob) => {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      });
   };
 
   const renderContent = () => {
@@ -201,22 +210,37 @@ const CategoryPage = () => {
       ));
     }
 
-    if (mainCategory === 'all') {
+    if (mainCategory === "all") {
       return categories.map((cat) => (
         <Grid item xs={12} sm={6} md={4} lg={3} key={cat.name}>
-                <Card style={{cursor:'pointer'}} className="hover:shadow-lg transition-shadow group h-full flex flex-col" onClick={() => {setMainCategory(cat.name.toLowerCase().replace(/ /g, "-"));handleCategoryCardClick(cat.name.toLowerCase().replace(/ /g, "-"), 'sub')}}>
-          <Box className="relative overflow-hidden">
+          <Card
+            style={{ cursor: "pointer" }}
+            className="hover:shadow-lg transition-shadow group h-full flex flex-col"
+            onClick={() => {
+              setMainCategory(cat.name.toLowerCase().replace(/ /g, "-"));
+              handleCategoryCardClick(
+                cat.name.toLowerCase().replace(/ /g, "-"),
+                "sub"
+              );
+            }}
+          >
+            <Box className="relative overflow-hidden">
               <CardMedia
                 component="img"
                 height="200"
                 onContextMenu={(e) => e.preventDefault()}
-                image={cat.name.toLowerCase().replace(/ /g, "-").includes('2d') ? 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/2D-Wallpapers/2d-category.png' : cat.name.toLowerCase().replace(/ /g, "-").includes('3d') ? 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/3D-Wallpapers/3d-category.png' : 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/Other-Popular-Categories/nature-wallpaper.png'}
-                alt={'Media'}
+                image={getImage(cat.name)}
+                alt={"Media"}
                 className="group-hover:scale-105 transition-transform duration-300"
               />
             </Box>
-             <CardContent className="flex-1">
-              <Typography variant="h6" className="font-semibold truncate">{cat.name}</Typography>
+            <CardContent className="flex-1">
+              <Typography
+                variant="subtitle1"
+                className="font-semibold truncate"
+              >
+                {cat.name}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -224,33 +248,36 @@ const CategoryPage = () => {
     }
 
     // Show sub-categories
-    if (mainCategory !== 'all' && subCategory === 'all') {
+    if (mainCategory !== "all" && subCategory === "all") {
       return subCategories.map((subCat) => (
         <Grid item xs={12} sm={6} md={4} lg={3} key={subCat.name}>
-           <Card className="hover:shadow-lg transition-shadow group h-full flex flex-col" onClick={() => {setSubCategory(subCat.name.toLowerCase().replace(/ /g, "-")); handleCategoryCardClick(subCat.name.toLowerCase().replace(/ /g, "-"), 'mini')}}>
-          <Box className="relative overflow-hidden">
+          <Card
+            className="hover:shadow-lg transition-shadow group h-full flex flex-col"
+            onClick={() => {
+              setSubCategory(subCat.name.toLowerCase().replace(/ /g, "-"));
+              handleCategoryCardClick(
+                subCat.name.toLowerCase().replace(/ /g, "-"),
+                "mini"
+              );
+            }}
+          >
+            <Box className="relative overflow-hidden">
               <CardMedia
                 component="img"
                 height="200"
                 onContextMenu={(e) => e.preventDefault()}
-                image={
-                  subCat.name.toLowerCase().replace(/ /g, "-").includes('illustration') ? 
-                  'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/2D-Wallpapers/Illustration%20&%20Art/illustration-and-art-wallpaper.png' : 
-                  subCat.name.toLowerCase().replace(/ /g, "-").includes('photography') ? 
-                  'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/2D-Wallpapers/Photography/photography-wallpaper.png' : 
-                  subCat.name.toLowerCase().replace(/ /g, "-").includes('typography') ?
-                   'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/2D-Wallpapers/Typography/typography-wallpaper.png' :
-                  subCat.name.toLowerCase().replace(/ /g, "-").includes('patterns') ? 
-                  'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/2D-Wallpapers/Patterns%20&%20Abstract/patterns-and-abstract-wallpaper.png' 
-                  : subCat.name.toLowerCase().replace(/ /g, "-").includes('cartoons') ? 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/2D-Wallpapers/Cartoons%20&%20Comics/cartoons-and-comics-wallpaper.png' : ''
-                   
-                }
-                alt={'Media'}
+                image={getImage(subCat.name)}
+                alt={"Media"}
                 className="group-hover:scale-105 transition-transform duration-300"
               />
             </Box>
             <CardContent className="flex-1">
-              <Typography variant="h6" className="font-semibold truncate">{subCat.name}</Typography>
+              <Typography
+                variant="subtitle1"
+                className="font-semibold truncate"
+              >
+                {subCat.name}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -258,25 +285,44 @@ const CategoryPage = () => {
     }
 
     // Show mini-sub-categories
-    if (subCategory !== 'all' && miniSubCategory === 'all') {
+    if (subCategory !== "all" && miniSubCategory === "all") {
       return miniSubCategories.map((item) => (
         <Grid item xs={12} sm={6} md={4} lg={3} key={item.name}>
-          <Card className="hover:shadow-lg transition-shadow group h-full flex flex-col" onClick={() => {setMiniSubCategory(item); handleCategoryCardClick(item.name.toLowerCase().replace(/ /g, "-"), 'mini')}}>
-          <Box className="relative overflow-hidden">
+          <Card
+            className="hover:shadow-lg transition-shadow group h-full flex flex-col"
+            onClick={() => {
+              setMiniSubCategory(item);
+              handleCategoryCardClick(
+                item.name.toLowerCase().replace(/ /g, "-"),
+                "mini"
+              );
+            }}
+          >
+            <Box className="relative overflow-hidden">
               <CardMedia
                 component="img"
                 height="200"
                 onContextMenu={(e) => e.preventDefault()}
-                image={ 'https://via.placeholder.com/300x200?text=Wallpaper'}
-                alt={'Media'}
+                image={"https://via.placeholder.com/300x200?text=Wallpaper"}
+                alt={"Media"}
                 className="group-hover:scale-105 transition-transform duration-300"
               />
               {true && (
-                <Chip label="FREE" color="success" size="small" className="absolute top-2 left-2" />
+                <Chip
+                  label="FREE"
+                  color="success"
+                  size="small"
+                  className="absolute top-2 left-2"
+                />
               )}
             </Box>
-             <CardContent className="flex-1">
-              <Typography variant="h6" className="font-semibold truncate">{item.name}</Typography>
+            <CardContent className="flex-1">
+              <Typography
+                variant="subtitle1"
+                className="font-semibold truncate"
+              >
+                {item.name}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -299,16 +345,30 @@ const CategoryPage = () => {
                 className="group-hover:scale-105 transition-transform duration-300"
               />
               {wallpaper.isFree && (
-                <Chip label="FREE" color="success" size="small" className="absolute top-2 left-2" />
+                <Chip
+                  label="FREE"
+                  color="success"
+                  size="small"
+                  className="absolute top-2 left-2"
+                />
               )}
             </Box>
             <CardContent className="flex-1">
-              <Typography variant="h6" className="font-semibold truncate">{wallpaper.title}</Typography>
+              <Typography
+                variant="subtitle1"
+                className="font-semibold truncate"
+              >
+                {wallpaper.title}
+              </Typography>
               <Typography variant="body2" color="text.secondary">
                 {wallpaper.resolution} • {wallpaper.format}
               </Typography>
               {!wallpaper.isFree && (
-                <Typography variant="h6" color="primary" className="font-bold mt-1">
+                <Typography
+                  variant="h6"
+                  color="primary"
+                  className="font-bold mt-1"
+                >
                   ₹{wallpaper.priceCents}
                 </Typography>
               )}
@@ -316,11 +376,15 @@ const CategoryPage = () => {
             <CardActions className="p-4 pt-0">
               <Button
                 fullWidth
+                size="small"
                 variant={wallpaper.isFree ? "outlined" : "contained"}
                 startIcon={wallpaper.isFree ? <DownloadIcon /> : <CartIcon />}
                 onClick={() =>
                   wallpaper.isFree
-                    ? handleDownload(wallpaper.fileKey, `${wallpaper.title}.png`)
+                    ? handleDownload(
+                        wallpaper.fileKey,
+                        `${wallpaper.title}.png`
+                      )
                     : handleAddToCart(wallpaper)
                 }
               >
@@ -330,12 +394,14 @@ const CategoryPage = () => {
           </Card>
         </Grid>
       ));
-    } 
+    }
 
     return (
       <Grid item xs={12}>
         <Box className="text-center py-16">
-          <Typography variant="h5" color="text.secondary">No content found</Typography>
+          <Typography variant="h6" color="text.secondary">
+            No content found
+          </Typography>
           <Typography variant="body1" color="text.secondary" className="mt-2">
             Try adjusting your search or filter criteria
           </Typography>
@@ -349,14 +415,15 @@ const CategoryPage = () => {
   return (
     <Container maxWidth="xl" className="py-4 sm:py-8">
       <Box className="mb-8">
-        <Typography variant="h4" component="h1" className="font-bold mb-4">
+        <Typography variant="h5" component="h1" className="font-bold mb-4">
           {categoryName}
         </Typography>
 
         <Grid container spacing={2} alignItems="center">
-        <Grid item xs={12} md={3} >
+          <Grid item xs={12} md={3}>
             <TextField
-            style={{borderRadius:'2rem'}}
+              size="small"
+              style={{ borderRadius: "2rem" }}
               fullWidth
               placeholder="Search..."
               value={searchTerm}
@@ -372,12 +439,14 @@ const CategoryPage = () => {
           </Grid>
 
           <Grid item xs={12} sm={6} md={2}>
-            <FormControl fullWidth>
+            <FormControl fullWidth size="small">
               <InputLabel>Category</InputLabel>
               <Select
                 value={mainCategory}
                 label="Category"
-                onChange={(e) => {setMainCategory(e.target.value)}}
+                onChange={(e) => {
+                  setMainCategory(e.target.value);
+                }}
               >
                 <MenuItem value="all">All</MenuItem>
                 {categories.map((mainCat) => (
@@ -393,7 +462,11 @@ const CategoryPage = () => {
           </Grid>
 
           <Grid item xs={12} sm={6} md={2}>
-            <FormControl fullWidth disabled={!subCategories.length}>
+            <FormControl
+              fullWidth
+              disabled={!subCategories.length}
+              size="small"
+            >
               <InputLabel>Sub Category</InputLabel>
               <Select
                 value={subCategory}
@@ -414,19 +487,22 @@ const CategoryPage = () => {
           </Grid>
 
           <Grid item xs={12} sm={6} md={2}>
-            <FormControl fullWidth disabled={!miniSubCategories.length}>
+            <FormControl
+              fullWidth
+              disabled={!miniSubCategories.length}
+              size="small"
+            >
               <InputLabel>Mini Sub Category</InputLabel>
               <Select
                 value={miniSubCategory}
                 label="Mini Sub Category"
-                onChange={(e) => {setMiniSubCategory(e.target.value)}}
+                onChange={(e) => {
+                  setMiniSubCategory(e.target.value);
+                }}
               >
                 <MenuItem value="all">All</MenuItem>
                 {miniSubCategories.map((item) => (
-                  <MenuItem
-                    key={item.name}
-                    value={item}
-                  >
+                  <MenuItem key={item.name} value={item}>
                     {item.name}
                   </MenuItem>
                 ))}
@@ -435,7 +511,7 @@ const CategoryPage = () => {
           </Grid>
 
           <Grid item xs={12} sm={6} md={2}>
-            <FormControl fullWidth>
+            <FormControl fullWidth size="small">
               <InputLabel>Sort By</InputLabel>
               <Select
                 value={sortBy}
@@ -453,7 +529,7 @@ const CategoryPage = () => {
           </Grid>
 
           <Grid item xs={12} sm={6} md={2}>
-            <FormControl fullWidth>
+            <FormControl fullWidth size="small">
               <InputLabel>Price</InputLabel>
               <Select
                 value={priceFilter}
@@ -467,7 +543,7 @@ const CategoryPage = () => {
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={6} md={2}>
-            <FormControl fullWidth>
+            <FormControl fullWidth size="small">
               <InputLabel>Dimension</InputLabel>
               <Select
                 value={dimensionFilter}
@@ -495,6 +571,7 @@ const CategoryPage = () => {
             page={page}
             onChange={(_, value) => setPage(value)}
             color="primary"
+            size="small"
           />
         </Box>
       )}

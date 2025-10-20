@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Container,
   Typography,
@@ -7,9 +7,8 @@ import {
   Card,
   CardMedia,
   CardContent,
-  CardActions,
-  Button,
   Chip,
+  Button,
   Fab,
   Skeleton,
 } from "@mui/material";
@@ -17,44 +16,65 @@ import {
   Download as DownloadIcon,
   ShoppingCart as CartIcon,
   CloudUpload as UploadIcon,
+  Search as SearchIcon,
 } from "@mui/icons-material";
-import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { wallpaperService } from "../services/wallpaperService";
-import { useAuth } from "../context/AuthContext";
-import { useCart } from "../context/CartContext";
-import toast from "react-hot-toast";
 import ThreeDBackground from "../components/common/ThreeDBackground";
-// import { categories } from "../data/categories";
-import { useDispatch, useSelector } from "react-redux";
+import { useAuth } from "../context/AuthContext";
 import { useGetAllcategoriesStructureQuery } from "../store/apis/wallpaperApi";
 
 const HomePage = () => {
   const { user } = useAuth();
-  const { addToCart } = useCart();
+  const { data: categoriesMapList, isLoading } =
+    useGetAllcategoriesStructureQuery();
   const [categories, setCategories] = useState([]);
-  const { data: categoriesMapList } = useGetAllcategoriesStructureQuery();
-  // const { categories: categoriesList } = useSelector(
-  //   (state) => state.wallpaper
-  // );
+  // Removed TypeScript generic since this is a .jsx file
+  const heroRef = useRef(null);
 
   useEffect(() => {
-    setCategories(categoriesMapList?.data)
-  },[categoriesMapList?.data])
+    setCategories(categoriesMapList?.data || []);
+  }, [categoriesMapList?.data]);
 
-  console.log(categoriesMapList)
+  // Parallax effect for ThreeDBackground -> subtle translate on scroll
+  useEffect(() => {
+    const onScroll = () => {
+      const sc = window.scrollY;
+      if (heroRef.current) {
+        // transform background slightly depending on scroll position -- smooth and subtle
+        heroRef.current.style.transform = `translateY(${Math.min(
+          sc * 0.1,
+          80
+        )}px)`;
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-  const handleAddToCart = (wallpaper) => {
-    addToCart(wallpaper);
-    toast.success("Added to cart!");
-  };
+  // IntersectionObserver to stagger reveal of masonry cards
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
 
-  // useEffect(() => {
-  //   setCategories(categoriesList);
-  // }, [categoriesList]);
+    document
+      .querySelectorAll(".masonry-card")
+      .forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, [categories]);
 
   return (
     <Box>
+      {/* Parallax / 3D background container */}
       <Box
         sx={{
           position: "fixed",
@@ -63,189 +83,277 @@ const HomePage = () => {
           width: "100%",
           height: "100vh",
           zIndex: -1,
+          overflow: "hidden",
+          transition: "transform 0.2s ease-out",
         }}
+        ref={heroRef}
       >
         <ThreeDBackground />
       </Box>
-      {/* Hero Section */}
-      <Box className="relative text-white py-20 sm:py-32 md:py-40 text-center">
-        <Container maxWidth="lg">
-          <Typography variant="h2" className="font-bold mb-4 text-gradient">
-            Find Your Next Wallpaper
-          </Typography>
-          <Typography variant="h5" className="opacity-80 max-w-2xl mx-auto">
-            A universe of stunning wallpapers at your fingertips.
-          </Typography>
-        </Container>
-      </Box>
 
-      {/* Categories Section */}
-      <Container maxWidth="lg" className="py-16">
-        <Typography
-          variant="h4"
-          className="text-center font-bold mb-8 text-gradient"
-        >
-          Browse by Category
-        </Typography>
-
-        <Grid container spacing={4} style={{ justifyContent: "space-between" }}>
-          {categories?.map((category) => (
-            <Grid item xs={12} sm={6} md={3} key={category.name}>
-              <Card
-                className="hover:shadow-lg transition-shadow cursor-pointer group transform hover:-translate-y-2"
-                component={Link}
-                to={`/category/${category.name
-                  ?.toLowerCase()
-                  ?.replace(/ /g, "-")}`}
-                sx={{
-                  transition:
-                    "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-                  "&:hover": {
-                    transform: "scale(1.05)",
-                    boxShadow: "0 10px 20px rgba(0,0,0,0.2)",
-                  },
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={category.name.toLowerCase().replace(/ /g, "-").includes('2d') ? 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/2D-Wallpapers/2d-category.png' : category.name.toLowerCase().replace(/ /g, "-").includes('3d') ? 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/3D-Wallpapers/3d-category.png' : 'https://roygltyllsnzhanbpswm.supabase.co/storage/v1/object/public/mana-wallpapers/Other-Popular-Categories/nature-wallpaper.png'}
-                  alt={category.name}
-                  className="group-hover:opacity-80 transition-opacity"
-                  style={{ borderRadius: "1rem" }}
-                  onContextMenu={(e) => e.preventDefault()}
-                />
-                <CardContent className="text-center">
-                  <Typography variant="h6" className="font-semibold">
-                    {category.name}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
-
-      {/* Featured Wallpapers */}
-      <Box className="bg-secondary-color py-16">
+      {/* Hero */}
+      <Box className="relative text-white py-24 sm:py-32 text-center">
         <Container maxWidth="lg">
           <Typography
-            variant="h4"
-            className="text-center font-bold mb-8 text-gradient"
+            variant="h1"
+            sx={{ fontWeight: 800, fontSize: { xs: 28, md: 48 } }}
+            className="mb-4 text-gradient"
           >
-            Featured Wallpapers
+            Discover & Collect Beautiful Wallpapers
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{ opacity: 0.85, maxWidth: 900, margin: "0 auto" }}
+            className="mb-6"
+          >
+            Curated wallpapers from artists around the world. Browse by
+            category, save your favorites, or purchase premium artwork.
           </Typography>
 
-          {/* <Grid container spacing={3}>
-            {isLoading
-              ? Array.from({ length: 8 }).map((_, index) => (
-                  <Grid item xs={12} sm={6} md={3} key={index}>
-                    <Card>
-                      <Skeleton
-                        variant="rectangular"
-                        height={200}
-                        animation="wave"
-                      />
-                      <CardContent>
-                        <Skeleton variant="text" height={30} />
-                        <Skeleton variant="text" height={20} width="60%" />
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))
-              : wallpapersData?.data?.content?.map((wallpaper) => (
-                  <Grid item xs={12} sm={6} md={3} key={wallpaper.id}>
-                    <Card className="hover:shadow-lg transition-shadow group transform hover:-translate-y-2">
-                      <Box className="relative overflow-hidden">
-                        <CardMedia
-                          component="img"
-                          height="200"
-                          image={
-                            wallpaper.thumbnailUrl ||
-                            "https://via.placeholder.com/300x200?text=Wallpaper"
-                          }
-                          alt={wallpaper.title}
-                          className="group-hover:scale-110 transition-transform duration-300"
-                        />
-                        {wallpaper.isFree && (
-                          <Chip
-                            label="FREE"
-                            color="success"
-                            size="small"
-                            className="absolute top-2 left-2"
-                          />
-                        )}
-                      </Box>
-
-                      <CardContent>
-                        <Typography
-                          variant="h6"
-                          className="font-semibold truncate"
-                        >
-                          {wallpaper.title}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {wallpaper.resolution} • {wallpaper.format}
-                        </Typography>
-                        {!wallpaper.isFree && (
-                          <Typography
-                            variant="h6"
-                            color="primary"
-                            className="font-bold mt-1"
-                          >
-                            ₹{wallpaper.priceCents}
-                          </Typography>
-                        )}
-                      </CardContent>
-
-                      <CardActions className="p-4 pt-0">
-                        <Button
-                          fullWidth
-                          variant={wallpaper.isFree ? "outlined" : "contained"}
-                          startIcon={
-                            wallpaper.isFree ? <DownloadIcon /> : <CartIcon />
-                          }
-                          onClick={() =>
-                            wallpaper.isFree
-                              ? window.open(
-                                  `/wallpaper/${wallpaper.id}`,
-                                  "_blank"
-                                )
-                              : handleAddToCart(wallpaper)
-                          }
-                        >
-                          {wallpaper.isFree ? "Download" : "Add to Cart"}
-                        </Button>
-                      </CardActions>
-                    </Card>
-                  </Grid>
-                ))}
-          </Grid> */}
-
-          <Box className="text-center mt-8">
+          {/* Search bar like Pinterest */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              maxWidth: 760,
+              margin: "12px auto 0",
+              background: "rgba(255,255,255,0.06)",
+              padding: "8px",
+              borderRadius: 12,
+              boxShadow: "0 6px 18px rgba(0,0,0,0.4)",
+              backdropFilter: "blur(6px)",
+            }}
+          >
+            <SearchIcon sx={{ marginLeft: 1, opacity: 0.8 }} />
+            <input
+              placeholder="Search wallpapers, e.g. forests, abstract, 3D"
+              className="w-full bg-transparent outline-none px-4 py-2 text-white placeholder:opacity-70"
+            />
             <Button
-              variant="outlined"
-              size="large"
-              component={Link}
-              to="/category/all"
+              variant="contained"
+              sx={{ borderRadius: 2, marginRight: 1 }}
             >
-              View All Wallpapers
+              Search
             </Button>
+          </Box>
+
+          {/* Category chips carousel */}
+          <Box
+            sx={{
+              mt: 6,
+              display: "flex",
+              gap: 1,
+              flexWrap: "wrap",
+              justifyContent: "center",
+            }}
+          >
+            {(categories.length
+              ? categories.slice(0, 12)
+              : Array.from({ length: 8 })
+            ).map((c, i) => (
+              <Chip
+                key={c?.name || i}
+                label={
+                  c?.name || (
+                    <span className="inline-block w-16 h-3 rounded-md bg-gray-600 animate-pulse" />
+                  )
+                }
+                clickable
+                className="chip-float"
+                sx={{
+                  padding: "6px 12px",
+                  fontWeight: 600,
+                  boxShadow: "0 6px 14px rgba(0,0,0,0.35)",
+                  backdropFilter: "blur(4px)",
+                }}
+                component={c?.name ? Link : "div"}
+                to={
+                  c?.name
+                    ? `/category/${c.name.toLowerCase().replace(/ /g, "-")}`
+                    : undefined
+                }
+              />
+            ))}
           </Box>
         </Container>
       </Box>
 
+      {/* Masonry categories grid */}
+      <Container maxWidth="lg" className="py-12">
+        <Typography
+          variant="h4"
+          className="text-center font-bold mb-8 text-gradient"
+        >
+          Explore Categories
+        </Typography>
+
+        {/* Masonry using CSS columns for responsive Pinterest-like layout */}
+        <div className="masonry-container" style={{ columnGap: 20 }}>
+          {isLoading
+            ? // show placeholder skeleton cards
+              Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="masonry-item">
+                  <Card sx={{ borderRadius: 3 }}>
+                    <Skeleton
+                      variant="rectangular"
+                      height={220}
+                      animation="wave"
+                    />
+                    <CardContent>
+                      <Skeleton variant="text" height={20} width="60%" />
+                      <Skeleton variant="text" height={16} width="40%" />
+                    </CardContent>
+                  </Card>
+                </div>
+              ))
+            : categories.map((category, idx) => (
+                <div
+                  key={category.name + idx}
+                  className="masonry-item masonry-card"
+                >
+                  <Card
+                    sx={{
+                      borderRadius: 3,
+                      overflow: "hidden",
+                      transition:
+                        "transform 0.35s cubic-bezier(.2,.9,.3,1), box-shadow 0.35s",
+                    }}
+                    component={Link}
+                    to={`/category/${category.name
+                      ?.toLowerCase()
+                      .replace(/ /g, "-")}`}
+                  >
+                    <div className="card-media-wrap">
+                      <CardMedia
+                        component="img"
+                        image={getCategoryImage(category.name)}
+                        alt={category.name}
+                        className="card-media"
+                        onContextMenu={(e) => e.preventDefault()}
+                        loading="lazy"
+                      />
+                      <div className="card-overlay">
+                        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                          {category.name}
+                        </Typography>
+                        <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                          Browse collection
+                        </Typography>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+              ))}
+        </div>
+
+        <Box className="text-center mt-10">
+          <Button
+            variant="outlined"
+            size="large"
+            component={Link}
+            to="/category/all"
+          >
+            View All Wallpapers
+          </Button>
+        </Box>
+      </Container>
+
+      {/* Floating Upload action for admin */}
       {user?.role === "ADMIN" && (
         <Fab
           color="primary"
           aria-label="upload"
-          className="fixed bottom-8 right-8"
+          className="fixed bottom-8 right-8 upload-fab"
           component={Link}
           to="/admin/upload-wallpaper"
         >
           <UploadIcon />
         </Fab>
       )}
+
+      {/* Local styles for the enhanced UI (scoped classes) */}
+      <style>{`
+        /* Masonry container built with CSS columns */
+        .masonry-container {
+          column-count: 1;
+        }
+        @media (min-width: 640px) { .masonry-container { column-count: 2; } }
+        @media (min-width: 960px) { .masonry-container { column-count: 3; } }
+        @media (min-width: 1280px) { .masonry-container { column-count: 4; } }
+
+        .masonry-item { 
+          break-inside: avoid;
+          margin-bottom: 20px;
+          opacity: 0; 
+          transform: translateY(24px) scale(0.995);
+          transition: opacity 420ms cubic-bezier(.2,.9,.3,1), transform 420ms cubic-bezier(.2,.9,.3,1);
+        }
+        .masonry-item.is-visible { opacity: 1; transform: translateY(0) scale(1); }
+
+        .card-media-wrap { position: relative; overflow: hidden; }
+        .card-media { display: block; width: 100%; height: auto; transform-origin: center; transition: transform 0.6s cubic-bezier(.2,.9,.3,1) ; }
+
+        .card-overlay {
+          position: absolute;
+          left: 12px;
+          bottom: 12px;
+          right: 12px;
+          background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.48) 100%);
+          color: white;
+          padding: 14px;
+          border-radius: 12px;
+          transform: translateY(8px);
+          opacity: 0;
+          transition: opacity 260ms, transform 260ms;
+        }
+
+        .masonry-item:hover .card-media { transform: scale(1.07) rotate(-0.4deg) translateY(-6px); }
+        .masonry-item:hover .card-overlay { opacity: 1; transform: translateY(0); }
+
+        /* floating chip subtle animation */
+        .chip-float { animation: floaty 6s ease-in-out infinite; }
+        .chip-float:nth-child(2) { animation-delay: 0.2s; }
+        .chip-float:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes floaty {
+          0%{ transform: translateY(0) }
+          50%{ transform: translateY(-6px) }
+          100%{ transform: translateY(0) }
+        }
+
+        /* reveal effect uses is-visible class added by IntersectionObserver */
+        .masonry-card { will-change: transform, opacity; }
+
+        /* Admin FAB style */
+        .upload-fab { box-shadow: 0 12px 40px rgba(16,24,40,0.5); }
+
+        /* colorful animated gradient for the main heading */
+        .text-gradient {
+          background: linear-gradient(90deg,
+            #ff6b6b 0%,
+            #ff9f43 16%,
+            #ffd93d 32%,
+            #6beaa7 48%,
+            #7dd3fc 64%,
+            #a78bfa 80%,
+            #ff6b6b 100%);
+          background-size: 200% 200%;
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          color: transparent;
+          animation: gradientShift 6s linear infinite;
+          font-weight: 800;
+        }
+
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        /* make sure images are crisp on hover */
+        img.card-media { border-radius: 12px; display:block; }
+      `}</style>
     </Box>
   );
 };
