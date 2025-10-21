@@ -24,7 +24,7 @@ import {
   Download as DownloadIcon,
   ShoppingCart as CartIcon,
 } from "@mui/icons-material";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { wallpaperService } from "../services/wallpaperService";
 import { useCart } from "../context/CartContext";
@@ -303,18 +303,10 @@ const CategoryPage = () => {
                 component="img"
                 height="200"
                 onContextMenu={(e) => e.preventDefault()}
-                image={"https://via.placeholder.com/300x200?text=Wallpaper"}
+                image={getImage(item.name)}
                 alt={"Media"}
                 className="group-hover:scale-105 transition-transform duration-300"
               />
-              {true && (
-                <Chip
-                  label="FREE"
-                  color="success"
-                  size="small"
-                  className="absolute top-2 left-2"
-                />
-              )}
             </Box>
             <CardContent className="flex-1">
               <Typography
