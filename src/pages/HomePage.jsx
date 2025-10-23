@@ -278,7 +278,6 @@ const HomePage = () => {
         }
         @media (min-width: 640px) { .masonry-container {column-count: 2; } }
         @media (min-width: 960px) { .masonry-container { column-count: 3; } }
-        @media (min-width: 1280px) { .masonry-container {column-count: 4; } }
 
         .masonry-item { 
           break-inside: avoid;

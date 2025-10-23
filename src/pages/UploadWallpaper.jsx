@@ -9,6 +9,7 @@ import { getAllcategoriesStructure } from "../store/thunks/wallpaperThunk";
 import { useDispatch, useSelector } from "react-redux";
 import Loading from "../components/common/Loading";
 import { Box, CircularProgress } from "@mui/material";
+import { useGetAllcategoriesStructureQuery } from "../store/apis/wallpaperApi";
 
 const UploadWallpaper = () => {
   const {
@@ -29,7 +30,6 @@ const UploadWallpaper = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const [subCategories, setSubCategories] = useState([]);
   const [subSubCategories, setSubSubCategories] = useState([]);
-  const { categories, isLoading } = useSelector((state) => state.wallpaper);
 
   const categoryValue = watch("category");
   const subCategoryValue = watch("subCategory");
@@ -38,44 +38,13 @@ const UploadWallpaper = () => {
     dispatch(getAllcategoriesStructure());
   }, []);
 
-  useEffect(() => {
-    if (categoryValue) {
-      const selectedCategory = categories?.find(
-        (cat) => cat.name.toLowerCase().replace(/ /g, "-") === categoryValue
-      );
-      if (selectedCategory) {
-        setSubCategories(selectedCategory.subCategories);
-        setValue("subCategory", "");
-        setSubSubCategories([]);
-        setValue("subSubCategory", "");
-      } else {
-        setSubCategories([]);
-        setValue("subCategory", "");
-      }
-    } else {
-      setSubCategories([]);
-      setValue("subCategory", "");
-    }
-  }, [categoryValue, setValue]);
+  const { data: categoriesMapList, isLoading } =
+    useGetAllcategoriesStructureQuery();
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    if (subCategoryValue) {
-      const selectedSubCategory = subCategories.find(
-        (subCat) =>
-          subCat.name.toLowerCase().replace(/ /g, "-") === subCategoryValue
-      );
-      if (selectedSubCategory) {
-        setSubSubCategories(selectedSubCategory.items);
-        setValue("subSubCategory", "");
-      } else {
-        setSubSubCategories([]);
-        setValue("subSubCategory", "");
-      }
-    } else {
-      setSubSubCategories([]);
-      setValue("subSubCategory", "");
-    }
-  }, [subCategoryValue, subCategories, setValue]);
+    setCategories(categoriesMapList?.data || []);
+  }, [categoriesMapList?.data]);
 
   const { mutate } = useMutation({
     mutationFn: uploadWallpaper,
@@ -169,48 +138,6 @@ const UploadWallpaper = () => {
               <p className="error-message">{errors.category.message}</p>
             )}
           </div>
-
-          {subCategories?.length > 0 && (
-            <div className="form-group">
-              <label htmlFor="subCategory">Sub Category</label>
-              <select
-                id="subCategory"
-                {...register("subCategory", {
-                  required: "Sub Category is required",
-                })}
-              >
-                <option value="">Select Sub Category</option>
-                {subCategories.map((subCat) => (
-                  <option
-                    key={subCat.name}
-                    value={subCat.name.toLowerCase().replace(/ /g, "-")}
-                  >
-                    {subCat.name}
-                  </option>
-                ))}
-              </select>
-              {errors?.subCategory && (
-                <p className="error-message">{errors.subCategory.message}</p>
-              )}
-            </div>
-          )}
-
-          {subSubCategories.length > 0 && (
-            <div className="form-group">
-              <label htmlFor="subSubCategory">Detail</label>
-              <select id="subSubCategory" {...register("subSubCategory")}>
-                <option value="">Select Detail</option>
-                {subSubCategories.map((item) => (
-                  <option
-                    key={item?.id}
-                    value={item.name?.toLowerCase().replace(/ /g, "-")}
-                  >
-                    {item?.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
 
           <div className="form-group">
             <label htmlFor="resolution">Resolution</label>

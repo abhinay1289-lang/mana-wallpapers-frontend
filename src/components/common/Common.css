@@ -1,0 +1,23 @@
+@media (min-width: 768px) {
+  .adjust-gap-menu {
+    min-width: 10% !important;
+    width: 10%;
+  }
+
+  .alignment-menu {
+    display: flex;
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 0px) and (max-width: 768px) {
+  .adjust-gap-menu {
+    min-width: 7% !important;
+    width: 7%;
+  }
+
+  .alignment-menu {
+    display: flex;
+    gap: 1rem;
+  }
+}

@@ -50,13 +50,11 @@ const CategoryPage = () => {
 
   const [mainCategory, setMainCategory] = useState(slug || "all");
   const [subCategory, setSubCategory] = useState("all");
-  const [miniSubCategory, setMiniSubCategory] = useState("all");
   const [subCategories, setSubCategories] = useState([]);
-  const [miniSubCategories, setMiniSubCategories] = useState([]);
   const { data, isLoading, isFetching } = useGetWallpapersQuery(
-    miniSubCategory?.id,
+    mainCategory?.id,
     {
-      skip: !miniSubCategory?.id,
+      skip: !mainCategory?.id,
     }
   );
   const [wallPapersList, setWallpapersList] = useState([]);
@@ -123,49 +121,13 @@ const CategoryPage = () => {
       setSubCategories(mainCat?.subCategories || []);
       setSubCategory("all");
     }
-    setMiniSubCategories([]);
-    setMiniSubCategory("all");
   }, [mainCategory, categories]);
-
-  useEffect(() => {
-    if (subCategory === "all") {
-      setMiniSubCategories([]);
-      setMiniSubCategory("all");
-    } else {
-      const subCat = subCategories.find(
-        (cat) => cat.name.toLowerCase().replace(/ /g, "-") === subCategory
-      );
-      setMiniSubCategories(subCat?.items || []);
-      setMiniSubCategory("all");
-    }
-  }, [subCategory, subCategories]);
-
-  useEffect(() => {
-    let activeFilter = "all";
-    if (miniSubCategory !== "all") {
-      activeFilter = miniSubCategory;
-    } else if (subCategory !== "all") {
-      activeFilter = subCategory;
-    } else {
-      activeFilter = mainCategory;
-    }
-    setCategoryFilter(activeFilter);
-    setPage(1); // Reset page when filters change
-  }, [mainCategory, subCategory, miniSubCategory]);
 
   const getCategoryNameBySlug = (slug) => {
     if (!slug || slug === "all") return "All Wallpapers";
     for (const mainCat of categories) {
       if (mainCat.name.toLowerCase().replace(/ /g, "-") === slug)
         return mainCat.name;
-      for (const subCat of mainCat.subCategories) {
-        if (subCat.name.toLowerCase().replace(/ /g, "-") === slug)
-          return subCat.name;
-        for (const item of subCat.items) {
-          if (item.name.toLowerCase().replace(/ /g, "-") === slug)
-            return item.name;
-        }
-      }
     }
     return "All Wallpapers";
   };
@@ -229,7 +191,7 @@ const CategoryPage = () => {
                 component="img"
                 height="200"
                 onContextMenu={(e) => e.preventDefault()}
-                image={getImage(cat.name)}
+                image={cat.imageUrl}
                 alt={"Media"}
                 className="group-hover:scale-105 transition-transform duration-300"
               />
@@ -277,43 +239,6 @@ const CategoryPage = () => {
                 className="font-semibold truncate"
               >
                 {subCat.name}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      ));
-    }
-
-    // Show mini-sub-categories
-    if (subCategory !== "all" && miniSubCategory === "all") {
-      return miniSubCategories.map((item) => (
-        <Grid item xs={12} sm={6} md={4} lg={3} key={item.name}>
-          <Card
-            className="hover:shadow-lg transition-shadow group h-full flex flex-col"
-            onClick={() => {
-              setMiniSubCategory(item);
-              handleCategoryCardClick(
-                item.name.toLowerCase().replace(/ /g, "-"),
-                "mini"
-              );
-            }}
-          >
-            <Box className="relative overflow-hidden">
-              <CardMedia
-                component="img"
-                height="200"
-                onContextMenu={(e) => e.preventDefault()}
-                image={getImage(item.name)}
-                alt={"Media"}
-                className="group-hover:scale-105 transition-transform duration-300"
-              />
-            </Box>
-            <CardContent className="flex-1">
-              <Typography
-                variant="subtitle1"
-                className="font-semibold truncate"
-              >
-                {item.name}
               </Typography>
             </CardContent>
           </Card>
@@ -430,7 +355,7 @@ const CategoryPage = () => {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid item xs={6} sm={6} md={2}>
             <FormControl fullWidth size="small">
               <InputLabel>Category</InputLabel>
               <Select
@@ -453,56 +378,7 @@ const CategoryPage = () => {
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2}>
-            <FormControl
-              fullWidth
-              disabled={!subCategories.length}
-              size="small"
-            >
-              <InputLabel>Sub Category</InputLabel>
-              <Select
-                value={subCategory}
-                label="Sub Category"
-                onChange={(e) => setSubCategory(e.target.value)}
-              >
-                <MenuItem value="all">All</MenuItem>
-                {subCategories.map((subCat) => (
-                  <MenuItem
-                    key={subCat.name}
-                    value={subCat.name.toLowerCase().replace(/ /g, "-")}
-                  >
-                    {subCat.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2}>
-            <FormControl
-              fullWidth
-              disabled={!miniSubCategories.length}
-              size="small"
-            >
-              <InputLabel>Mini Sub Category</InputLabel>
-              <Select
-                value={miniSubCategory}
-                label="Mini Sub Category"
-                onChange={(e) => {
-                  setMiniSubCategory(e.target.value);
-                }}
-              >
-                <MenuItem value="all">All</MenuItem>
-                {miniSubCategories.map((item) => (
-                  <MenuItem key={item.name} value={item}>
-                    {item.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid item xs={6} sm={6} md={2}>
             <FormControl fullWidth size="small">
               <InputLabel>Sort By</InputLabel>
               <Select
@@ -520,7 +396,7 @@ const CategoryPage = () => {
             </FormControl>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid item xs={6} sm={6} md={2}>
             <FormControl fullWidth size="small">
               <InputLabel>Price</InputLabel>
               <Select
@@ -534,7 +410,7 @@ const CategoryPage = () => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid item xs={6} sm={6} md={2}>
             <FormControl fullWidth size="small">
               <InputLabel>Dimension</InputLabel>
               <Select
