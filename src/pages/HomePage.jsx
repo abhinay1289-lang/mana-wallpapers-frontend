@@ -208,11 +208,8 @@ const HomePage = () => {
                   </Card>
                 </div>
               ))
-            : categories.map((category, idx) => (
-                <div
-                  key={category.name + idx}
-                  className="masonry-item masonry-card"
-                >
+            : categories.map((category) => (
+                <div key={category.id} className="masonry-item masonry-card">
                   <Card
                     sx={{
                       borderRadius: 3,
@@ -228,7 +225,7 @@ const HomePage = () => {
                     <div className="card-media-wrap">
                       <CardMedia
                         component="img"
-                        image={getImage(category.name)}
+                        image={category?.imageUrl}
                         alt={category.name}
                         className="card-media"
                         onContextMenu={(e) => e.preventDefault()}
@@ -277,12 +274,10 @@ const HomePage = () => {
       <style>{`
         /* Masonry container built with CSS columns */
         .masonry-container {
-          display:flex;
-          column-count: 1;
+          column-count: 2;
         }
-        @media (min-width: 640px) { .masonry-container {display:flex; column-count: 2; } }
-        @media (min-width: 960px) { .masonry-container {display:flex; column-count: 3; } }
-        @media (min-width: 1280px) { .masonry-container {display:flex; column-count: 4; } }
+        @media (min-width: 640px) { .masonry-container {column-count: 2; } }
+        @media (min-width: 960px) { .masonry-container { column-count: 3; } }
 
         .masonry-item { 
           break-inside: avoid;

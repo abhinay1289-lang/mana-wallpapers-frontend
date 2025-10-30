@@ -1,9 +1,8 @@
 import { fetchBaseQuery } from "@reduxjs/toolkit/query";
 import toast from "react-hot-toast";
 
-
 const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.VITE_API_BASE_URL || "https://mana-wallpapers-backend.onrender.com/api",
+  baseUrl: import.meta.env.VITE_API_BASE_URL,
   prepareHeaders: (headers) => {
     const token = localStorage.getItem("token");
     if (token) {

@@ -4,11 +4,14 @@
   "description": "Frontend for Mana Wallpapers marketplace",
   "private": true,
   "type": "module",
+  "homepage": "https://abhinay1289-lang.github.io/mana-wallpapers-frontend/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",
@@ -30,6 +33,7 @@
     "react-hook-form": "^7.48.2",
     "react-hot-toast": "^2.4.1",
     "react-redux": "^9.2.0",
+    "react-responsive": "^10.0.1",
     "react-router-dom": "^6.20.1",
     "recharts": "^2.10.3",
     "three": "^0.165.0",
@@ -40,6 +44,7 @@
     "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.2.0",
     "autoprefixer": "^10.4.21",
+    "gh-pages": "^6.3.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17"
   }
