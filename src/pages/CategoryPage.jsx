@@ -24,33 +24,27 @@ import {
   Download as DownloadIcon,
   ShoppingCart as CartIcon,
 } from "@mui/icons-material";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { wallpaperService } from "../services/wallpaperService";
+import { useNavigate, useParams } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
 import {
   useGetAllcategoriesStructureQuery,
   useGetWallpapersQuery,
 } from "../store/apis/wallpaperApi";
-import getImage from "../components/common/getImage";
 
 const CategoryPage = () => {
-  const { slug } = useParams();
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("createdAt");
   const [priceFilter, setPriceFilter] = useState("");
   const [dimensionFilter, setDimensionFilter] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState(slug || "all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [categories, setCategories] = useState([]);
   const [page, setPage] = useState(1);
   const { addToCart } = useCart();
   const { data: categoriesMapList } = useGetAllcategoriesStructureQuery();
 
-  const [mainCategory, setMainCategory] = useState(slug || "all");
-  const [subCategory, setSubCategory] = useState("all");
-  const [subCategories, setSubCategories] = useState([]);
+  const [mainCategory, setMainCategory] = useState("all");
+
   const { data, isLoading, isFetching } = useGetWallpapersQuery(
     mainCategory?.id,
     {
@@ -110,19 +104,6 @@ const CategoryPage = () => {
     setWallpapersList(filtered);
   };
 
-  useEffect(() => {
-    if (mainCategory === "all") {
-      setSubCategories([]);
-      setSubCategory("all");
-    } else {
-      const mainCat = categories.find(
-        (cat) => cat.name.toLowerCase().replace(/ /g, "-") === mainCategory
-      );
-      setSubCategories(mainCat?.subCategories || []);
-      setSubCategory("all");
-    }
-  }, [mainCategory, categories]);
-
   const getCategoryNameBySlug = (slug) => {
     if (!slug || slug === "all") return "All Wallpapers";
     for (const mainCat of categories) {
@@ -172,7 +153,7 @@ const CategoryPage = () => {
       ));
     }
 
-    if (mainCategory === "all") {
+    if (mainCategory == "all") {
       return categories.map((cat) => (
         <Grid item xs={12} sm={6} md={4} lg={3} key={cat.name}>
           <Card
@@ -202,43 +183,6 @@ const CategoryPage = () => {
                 className="font-semibold truncate"
               >
                 {cat.name}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      ));
-    }
-
-    // Show sub-categories
-    if (mainCategory !== "all" && subCategory === "all") {
-      return subCategories.map((subCat) => (
-        <Grid item xs={12} sm={6} md={4} lg={3} key={subCat.name}>
-          <Card
-            className="hover:shadow-lg transition-shadow group h-full flex flex-col"
-            onClick={() => {
-              setSubCategory(subCat.name.toLowerCase().replace(/ /g, "-"));
-              handleCategoryCardClick(
-                subCat.name.toLowerCase().replace(/ /g, "-"),
-                "mini"
-              );
-            }}
-          >
-            <Box className="relative overflow-hidden">
-              <CardMedia
-                component="img"
-                height="200"
-                onContextMenu={(e) => e.preventDefault()}
-                image={getImage(subCat.name)}
-                alt={"Media"}
-                className="group-hover:scale-105 transition-transform duration-300"
-              />
-            </Box>
-            <CardContent className="flex-1">
-              <Typography
-                variant="subtitle1"
-                className="font-semibold truncate"
-              >
-                {subCat.name}
               </Typography>
             </CardContent>
           </Card>
@@ -365,12 +309,9 @@ const CategoryPage = () => {
                   setMainCategory(e.target.value);
                 }}
               >
-                <MenuItem value="all">All</MenuItem>
+                <MenuItem value={"all"}>All</MenuItem>
                 {categories.map((mainCat) => (
-                  <MenuItem
-                    key={mainCat.name}
-                    value={mainCat.name.toLowerCase().replace(/ /g, "-")}
-                  >
+                  <MenuItem key={mainCat.name} value={mainCat}>
                     {mainCat.name}
                   </MenuItem>
                 ))}
