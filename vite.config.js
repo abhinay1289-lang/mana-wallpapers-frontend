@@ -2,14 +2,13 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-    base: "/mana-wallpapers-frontend/",  // Add this line with your repo name
   plugins: [react()],
   server: {
     port: 3000,
     open: true,
     proxy: {
       "/api": {
-        target: "https://mana-wallpapers-backend.onrender.com",
+        target: "http://localhost:8080",
         changeOrigin: true,
       },
     },

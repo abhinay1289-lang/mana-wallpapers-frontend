@@ -115,7 +115,6 @@ const App = () => {
     refetchOnReconnect: false,
   });
 
-
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
@@ -125,7 +124,14 @@ const App = () => {
             <Router>
               <div className="min-h-screen flex flex-col bg-primary-color text-text-color">
                 <Header />
-                <main className="flex-1">
+                <main
+                  className="flex-1"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
                   <Routes>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/login" element={<LoginPage />} />

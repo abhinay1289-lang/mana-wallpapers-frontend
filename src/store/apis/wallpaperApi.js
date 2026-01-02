@@ -16,6 +16,24 @@ export const wallpaperApi = createApi({
       // Auto refetch
       invalidatesTags: ["wallpapers"],
     }),
+    saveWallpaper: builder.mutation({
+      query: (payload) => ({
+        url: "/wallpapers/saved",
+        method: "PATCH",
+        body: payload,
+      }),
+      // Auto refetch
+      invalidatesTags: ["wallpapers"],
+    }),
+    likeWallpaper: builder.mutation({
+      query: (payload) => ({
+        url: "/wallpapers/liked",
+        method: "PATCH",
+        body: payload,
+      }),
+      // Auto refetch
+      invalidatesTags: ["wallpapers"],
+    }),
     getWallpapers: builder.query({
       query: (typeId) => ({
         url: "/wallpapers",
@@ -30,5 +48,5 @@ export const wallpaperApi = createApi({
   }),
 });
 
-export const { useUploadWallpaperMutation, useGetAllcategoriesStructureQuery,useGetWallpapersQuery } =
+export const { useUploadWallpaperMutation,useSaveWallpaperMutation, useLikeWallpaperMutation, useGetAllcategoriesStructureQuery,useGetWallpapersQuery } =
   wallpaperApi;

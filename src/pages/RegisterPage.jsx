@@ -30,10 +30,12 @@ import { useRegisterMutation } from "../store/apis/authApi";
 
 const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-    const [registerUser] = useRegisterMutation();
+  const [registerUser] = useRegisterMutation();
   // const { register: registerUser } = useAuth();
   const navigate = useNavigate();
   // const dispatch = useDispatch();
@@ -53,41 +55,30 @@ const RegisterPage = () => {
     setIsLoading(true);
     setError("");
 
-    await registerUser(data).unwrap().then(() => {
+    await registerUser(data)
+      .unwrap()
+      .then(() => {
         toast.success("Registration successful! Please login.");
         navigate("/login");
-    }).catch(() => {  
-      const errorMessage =
-            error.response?.data?.message || "Registration failed";
-          setError(errorMessage);
-          toast.error(errorMessage);
-    });
-
-    // dispatch(
-    //   registerUser({
-    //     email: data.email,
-    //     password: data.password,
-    //     fullName: data.fullName,
-    //     role: data.role,
-    //   })
-    // )
-    //   .then(() => {
-    //     setIsLoading(false);
-    //     toast.success("Registration successful! Please login.");
-    //     navigate("/login");
-    //   })
-    //   .catch(() => {
-    //     const errorMessage =
-    //       error.response?.data?.message || "Registration failed";
-    //     setError(errorMessage);
-    //     toast.error(errorMessage);
-    //     setIsLoading(false);
-    //   });
+      })
+      .catch(() => {
+        const errorMessage =
+          error.response?.data?.message || "Registration failed";
+        setError(errorMessage);
+        toast.error(errorMessage);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   return (
     <Container maxWidth="sm" className="py-8 sm:py-16">
-      <Paper elevation={3} className="p-4 sm:p-8">
+      <Paper
+        elevation={3}
+        className="p-4 sm:p-8"
+        style={{ borderRadius: "1rem" }}
+      >
         <Box className="text-center mb-6">
           <Typography
             variant="h4"
@@ -187,7 +178,7 @@ const RegisterPage = () => {
           <TextField
             fullWidth
             label="Confirm Password"
-            type={showPassword ? "text" : "password"}
+            type={showConfirmPassword ? "text" : "password"}
             {...register("confirmPassword", {
               required: "Please confirm your password",
               validate: (value) =>
@@ -205,27 +196,15 @@ const RegisterPage = () => {
                 <InputAdornment position="end">
                   <IconButton
                     aria-label="toggle password visibility"
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     edge="end"
                   >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
               ),
             }}
           />
-          <FormControl fullWidth>
-            <InputLabel id="role-label">Role</InputLabel>
-            <Select
-              labelId="role-label"
-              defaultValue="BUYER"
-              label="Role"
-              {...register("role", { required: "Role is required" })}
-            >
-              <MenuItem value="BUYER">BUYER</MenuItem>
-              <MenuItem value="ADMIN">ADMIN</MenuItem>
-            </Select>
-          </FormControl>
 
           <Button
             type="submit"

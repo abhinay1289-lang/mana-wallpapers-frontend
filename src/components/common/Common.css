@@ -21,3 +21,154 @@
     gap: 1rem;
   }
 }
+
+ /* /* Masonry container built with CSS columns */
+.masonry-container {
+  column-count: 2;
+}
+
+@media (min-width: 640px) {
+  .masonry-container {
+    column-count: 2;
+  }
+}
+
+@media (min-width: 960px) {
+  .masonry-container {
+    column-count: 3;
+  }
+}
+
+.masonry-item {
+  break-inside: avoid;
+  margin-bottom: 20px;
+  opacity: 1;
+  transform: translateY(24px) scale(0.995);
+  transition:
+    opacity 420ms cubic-bezier(.2,.9,.3,1),
+    transform 420ms cubic-bezier(.2,.9,.3,1);
+}
+
+
+
+.masonry-item.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Card media */
+.card-media-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-media {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform-origin: center;
+  transition: transform 0.6s cubic-bezier(.2,.9,.3,1);
+}
+
+/* Overlay */
+.card-overlay {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.48) 100%
+  );
+  color: #ffffff;
+  padding: 14px;
+  border-radius: 12px;
+  transform: translateY(8px);
+  opacity: 0;
+  transition: opacity 260ms, transform 260ms;
+}
+
+/* Hover effects */
+/* .masonry-item:hover .card-media {
+  transform: scale(1.07) rotate(-0.4deg) translateY(-6px);
+} */
+
+/* .masonry-item:hover .card-overlay {
+  opacity: 1;
+  transform: translateY(0);
+} */
+
+/* Floating chip subtle animation */
+.chip-float {
+  animation: floaty 6s ease-in-out infinite;
+}
+
+.chip-float:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.chip-float:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes floaty {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Reveal effect */
+.masonry-card {
+  will-change: transform, opacity;
+}
+
+/* Admin FAB style */
+.upload-fab {
+  box-shadow: 0 12px 40px rgba(16, 24, 40, 0.5);
+}
+
+/* Colorful animated gradient for the main heading */
+.text-gradient {
+  background: linear-gradient(
+    90deg,
+    #ff6b6b 0%,
+    #ff9f43 16%,
+    #ffd93d 32%,
+    #6beaa7 48%,
+    #7dd3fc 64%,
+    #a78bfa 80%,
+    #ff6b6b 100%
+  );
+  background-size: 200% 200%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 6s linear infinite;
+  font-weight: 800;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Ensure images are crisp */
+img.card-media {
+  border-radius: 12px;
+  display: block;
+}

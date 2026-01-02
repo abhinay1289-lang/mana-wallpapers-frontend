@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Container,
   Paper,
@@ -21,12 +21,14 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useLoginMutation } from "../store/apis/authApi";
+import ThreeDBackground from "../components/common/ThreeDBackground";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [login,{data,isSuccess}] = useLoginMutation();
+  const heroRef = useRef(null);
+  const [login, { data, isSuccess }] = useLoginMutation();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/dashboard";
@@ -43,8 +45,7 @@ const LoginPage = () => {
     try {
       await login(data);
       toast.success("Login successful!");
-    }
-    catch(err){
+    } catch (err) {
       const errorMessage = err?.data?.message || "Login failed";
       setError(errorMessage);
       toast.error(errorMessage);
@@ -53,20 +54,43 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (isSuccess && data?.data?.accessToken) {
-      localStorage.setItem("user",JSON.stringify(data?.data));
+      localStorage.setItem("user", JSON.stringify(data?.data));
       localStorage.setItem("token", data?.data?.accessToken);
       navigate(from, { replace: true });
     }
-  }, [isSuccess, data]);  
-
+  }, [isSuccess, data]);
 
   return (
     <Container maxWidth="sm" className="py-8 sm:py-16">
-      <Paper elevation={3} className="p-4 sm:p-8">
+      <Box
+        sx={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100vh",
+          zIndex: -1,
+          overflow: "hidden",
+          transition: "transform 0.2s ease-out",
+        }}
+        ref={heroRef}
+      >
+        <ThreeDBackground />
+      </Box>
+      <Paper
+        elevation={3}
+        className="p-4 sm:p-8"
+        sx={{
+          backgroundColor: "#2a2a2a",
+          borderRadius: "1rem",
+          boxShadow: "1px 1px 23px 6px #717578",
+        }}
+      >
         <Box className="text-center mb-6">
           <Typography
             variant="h4"
             component="h1"
+            sx={{ color: "#0d1b2a !important" }}
             className="font-bold text-indigo-600 mb-2"
           >
             Welcome Back
@@ -144,6 +168,7 @@ const LoginPage = () => {
             variant="contained"
             size="large"
             disabled={isLoading}
+            sx={{ backgroundColor: "#1b3b6f" }}
             className="py-3 mt-4 sm:mt-6"
           >
             {isLoading ? "Signing in..." : "Sign In"}
@@ -164,10 +189,10 @@ const LoginPage = () => {
           <Typography style={{ color: "#000" }} className="font-semibold mb-2">
             Demo Credentials:
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="#302e2eff">
             Admin: admin@mana.test / Admin@123
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="#302e2eff">
             Buyer: buyer@mana.test / Buyer@123
           </Typography>
         </Box>

@@ -19,18 +19,27 @@ import {
   Skeleton,
   Pagination,
 } from "@mui/material";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import TurnedInNotIcon from "@mui/icons-material/TurnedInNot";
+import BookmarkRoundedIcon from "@mui/icons-material/BookmarkRounded";
+import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import {
   Search as SearchIcon,
   Download as DownloadIcon,
   ShoppingCart as CartIcon,
 } from "@mui/icons-material";
+import { Link } from "react-router-dom";
+
 import { useNavigate, useParams } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
 import {
   useGetAllcategoriesStructureQuery,
   useGetWallpapersQuery,
+  useLikeWallpaperMutation,
+  useSaveWallpaperMutation,
 } from "../store/apis/wallpaperApi";
+// import "./../components/common/Common.css";
 
 const CategoryPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -44,6 +53,8 @@ const CategoryPage = () => {
   const { data: categoriesMapList } = useGetAllcategoriesStructureQuery();
 
   const [mainCategory, setMainCategory] = useState("all");
+  const [saveWallpaper] = useSaveWallpaperMutation();
+  const [likeWallpaper] = useLikeWallpaperMutation();
 
   const { data, isLoading, isFetching } = useGetWallpapersQuery(
     mainCategory?.id,
@@ -51,6 +62,7 @@ const CategoryPage = () => {
       skip: !mainCategory?.id,
     }
   );
+
   const [wallPapersList, setWallpapersList] = useState([]);
 
   useEffect(() => {
@@ -64,6 +76,32 @@ const CategoryPage = () => {
   useEffect(() => {
     filterAndSortWallpapers();
   }, [searchTerm, sortBy, priceFilter]);
+
+  useEffect(() => {
+    const container = document.querySelector(".masonry-container");
+    if (!container) return;
+
+    const items = Array.from(container.querySelectorAll(".masonry-item"));
+    if (!("IntersectionObserver" in window)) {
+      // Fallback: make all visible
+      items.forEach((it) => it.classList.add("is-visible"));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+          }
+        });
+      },
+      { rootMargin: "0px 0px -10% 0px", threshold: 0.01 }
+    );
+
+    items.forEach((it) => observer.observe(it));
+    return () => observer.disconnect();
+  }, [wallPapersList, categories, mainCategory]);
 
   const filterAndSortWallpapers = () => {
     if (!data?.data) return [];
@@ -138,10 +176,38 @@ const CategoryPage = () => {
       });
   };
 
+  const handleSaveWallpaper = (id, isSaved) => {
+    // Implement save wallpaper logic here
+    saveWallpaper({ id, isLikedOrSaved: isSaved })
+      .unwrap()
+      .then(() => {
+        toast.success("Wallpaper saved successfully!");
+      })
+      .catch(() => {});
+  };
+
+  const handleLikeWallpaper = (id, isLiked) => {
+    // Implement save wallpaper logic here
+    likeWallpaper({ id, isLikedOrSaved: isLiked })
+      .unwrap()
+      .then(() => {
+        toast.success("Wallpaper liked successfully!");
+      })
+      .catch(() => {});
+  };
+
   const renderContent = () => {
     if (isLoading || isFetching) {
       return Array.from({ length: 10 }).map((_, index) => (
-        <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+        <Grid
+          item
+          xs={12}
+          sm={6}
+          md={4}
+          lg={3}
+          key={index}
+          style={{ marginBottom: "1rem" }}
+        >
           <Card>
             <Skeleton variant="rectangular" height={200} />
             <CardContent>
@@ -155,50 +221,56 @@ const CategoryPage = () => {
 
     if (mainCategory == "all") {
       return categories.map((cat) => (
-        <Grid item xs={12} sm={6} md={4} lg={3} key={cat.name}>
+        <div key={cat.id} className="masonry-item masonry-card">
           <Card
-            style={{ cursor: "pointer" }}
-            className="hover:shadow-lg transition-shadow group h-full flex flex-col"
+            sx={{
+              borderRadius: 3,
+              overflow: "hidden",
+              cursor: "pointer",
+              transition:
+                "transform 0.35s cubic-bezier(.2,.9,.3,1), box-shadow 0.35s",
+            }}
             onClick={() => {
-              setMainCategory(cat.name.toLowerCase().replace(/ /g, "-"));
+              setMainCategory(cat);
               handleCategoryCardClick(
                 cat.name.toLowerCase().replace(/ /g, "-"),
                 "sub"
               );
             }}
           >
-            <Box className="relative overflow-hidden">
+            <div className="card-media-wrap">
               <CardMedia
                 component="img"
-                height="200"
+                image={cat?.imageUrl}
+                alt={cat.name}
+                className="card-media"
                 onContextMenu={(e) => e.preventDefault()}
-                image={cat.imageUrl}
-                alt={"Media"}
-                className="group-hover:scale-105 transition-transform duration-300"
+                loading="lazy"
               />
-            </Box>
-            <CardContent className="flex-1">
-              <Typography
-                variant="subtitle1"
-                className="font-semibold truncate"
-              >
-                {cat.name}
-              </Typography>
-            </CardContent>
+              <div className="card-overlay">
+                <CardContent className="flex-1">
+                  <Typography
+                    variant="subtitle1"
+                    className="font-semibold truncate"
+                  >
+                    {cat.name}
+                  </Typography>
+                </CardContent>
+              </div>
+            </div>
           </Card>
-        </Grid>
+        </div>
       ));
     }
 
-    // Show wallpapers
     if (wallPapersList?.length > 0) {
-      return wallPapersList?.map((wallpaper) => (
-        <Grid item xs={12} sm={6} md={4} lg={3} key={wallpaper.id}>
+      return wallPapersList.map((wallpaper) => (
+        <div key={wallpaper.id} className="masonry-item masonry-card">
           <Card className="hover:shadow-lg transition-shadow group h-full flex flex-col">
             <Box className="relative overflow-hidden">
               <CardMedia
                 component="img"
-                height="200"
+                height="400"
                 onContextMenu={(e) => e.preventDefault()}
                 image={wallpaper.fileKey}
                 alt={wallpaper.title}
@@ -213,31 +285,78 @@ const CategoryPage = () => {
                   className="absolute top-2 left-2"
                 />
               )}
-            </Box>
-            <CardContent className="flex-1">
-              <Typography
-                variant="subtitle1"
-                className="font-semibold truncate"
+              <div
+                className="absolute top-2 right-2"
+                style={{ gap: "1rem", display: "flex" }}
               >
-                {wallpaper.title}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {wallpaper.resolution} • {wallpaper.format}
-              </Typography>
-              {!wallpaper.isFree && (
+                {wallpaper.isSaved ? (
+                  <BookmarkRoundedIcon
+                    fontSize="large"
+                    style={{ color: "green", cursor: "pointer" }}
+                    onClick={() =>
+                      handleSaveWallpaper(wallpaper.id, !wallpaper.isSaved)
+                    }
+                  />
+                ) : (
+                  <TurnedInNotIcon
+                    fontSize="large"
+                    style={{ cursor: "pointer" }}
+                    onClick={() =>
+                      handleSaveWallpaper(wallpaper.id, !wallpaper.isSaved)
+                    }
+                  />
+                )}
+                {wallpaper.isLiked ? (
+                  <FavoriteRoundedIcon
+                    fontSize="large"
+                    style={{ color: "green", cursor: "pointer" }}
+                    onClick={() =>
+                      handleLikeWallpaper(wallpaper.id, !wallpaper.isLiked)
+                    }
+                  />
+                ) : (
+                  <FavoriteBorderIcon
+                    fontSize="large"
+                    style={{ cursor: "pointer" }}
+                    onClick={() =>
+                      handleLikeWallpaper(wallpaper.id, !wallpaper.isLiked)
+                    }
+                  />
+                )}
+              </div>
+            </Box>
+            <div className="card-overlay">
+              <CardContent>
                 <Typography
-                  variant="h6"
-                  color="primary"
-                  className="font-bold mt-1"
+                  variant="subtitle1"
+                  className="font-semibold truncate"
                 >
-                  ₹{wallpaper.priceCents}
+                  {wallpaper.title}
                 </Typography>
-              )}
-            </CardContent>
-            <CardActions className="p-4 pt-0">
+                <Typography variant="body2" color="text.secondary">
+                  {wallpaper.resolution} • {wallpaper.format}
+                </Typography>
+                {!wallpaper.isFree && (
+                  <Typography
+                    variant="h6"
+                    color="primary"
+                    className="font-bold mt-1"
+                  >
+                    ₹{wallpaper.priceCents}
+                  </Typography>
+                )}
+              </CardContent>
               <Button
                 fullWidth
                 size="small"
+                style={{
+                  height: "3rem",
+                  fontSize: "1rem",
+                  width: "8rem",
+                  borderColor: "#fff",
+                  backgroundColor: "#f8f6f62b",
+                  color: "#fff",
+                }}
                 variant={wallpaper.isFree ? "outlined" : "contained"}
                 startIcon={wallpaper.isFree ? <DownloadIcon /> : <CartIcon />}
                 onClick={() =>
@@ -251,9 +370,9 @@ const CategoryPage = () => {
               >
                 {wallpaper.isFree ? "Download" : "Add to Cart"}
               </Button>
-            </CardActions>
+            </div>
           </Card>
-        </Grid>
+        </div>
       ));
     }
 
@@ -310,11 +429,13 @@ const CategoryPage = () => {
                 }}
               >
                 <MenuItem value={"all"}>All</MenuItem>
-                {categories.map((mainCat) => (
-                  <MenuItem key={mainCat.name} value={mainCat}>
-                    {mainCat.name}
-                  </MenuItem>
-                ))}
+                {categories.map((mainCat) => {
+                  return (
+                    <MenuItem key={mainCat.id} value={mainCat}>
+                      {mainCat.name}
+                    </MenuItem>
+                  );
+                })}
               </Select>
             </FormControl>
           </Grid>
@@ -369,14 +490,14 @@ const CategoryPage = () => {
         </Grid>
       </Box>
 
-      <Grid container spacing={3}>
-        {renderContent()}
-      </Grid>
+      <div>
+        <div className="masonry-container">{renderContent()}</div>
+      </div>
 
-      {data?.data.length > 1 && (
+      {wallPapersList?.length > 1 && (
         <Box display="flex" justifyContent="center" mt={4}>
           <Pagination
-            count={data.data.length}
+            count={wallPapersList.length}
             page={page}
             onChange={(_, value) => setPage(value)}
             color="primary"
@@ -384,6 +505,89 @@ const CategoryPage = () => {
           />
         </Box>
       )}
+      <style>{`
+        /* Masonry container built with CSS columns */
+        .masonry-container {
+          column-count: 2;
+        }
+        @media (min-width: 640px) { .masonry-container {column-count: 2; } }
+        @media (min-width: 960px) { .masonry-container { column-count: 3; } }
+
+        .masonry-item {
+          display: inline-block;
+          width: 100%;
+          break-inside: avoid;
+          margin-bottom: 20px;
+          opacity: 0;
+          transform: translateY(24px) scale(0.995);
+          transition: opacity 420ms cubic-bezier(.2,.9,.3,1), transform 420ms cubic-bezier(.2,.9,.3,1);
+        }
+        .masonry-item.is-visible { opacity: 1; transform: translateY(0) scale(1); }
+
+        .card-media-wrap { position: relative; overflow: hidden; }
+        .card-media { display: block; width: 100%; height: auto; transform-origin: center; transition: transform 0.6s cubic-bezier(.2,.9,.3,1) ; }
+
+        .card-overlay {
+          position: absolute;
+          left: 12px;
+          bottom: 12px;
+          right: 12px;
+          background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.48) 100%);
+          color: white;
+          padding: 14px;
+          border-radius: 12px;
+          transform: translateY(8px);
+          opacity: 0;
+          transition: opacity 260ms, transform 260ms;
+        }
+
+        .masonry-item:hover .card-media { transform: scale(1.07) rotate(-0.4deg) translateY(-6px); }
+        .masonry-item:hover .card-overlay { opacity: 1; transform: translateY(0); }
+
+        /* floating chip subtle animation */
+        .chip-float { animation: floaty 6s ease-in-out infinite; }
+        .chip-float:nth-child(2) { animation-delay: 0.2s; }
+        .chip-float:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes floaty {
+          0%{ transform: translateY(0) }
+          50%{ transform: translateY(-6px) }
+          100%{ transform: translateY(0) }
+        }
+
+        /* reveal effect uses is-visible class added by IntersectionObserver */
+        .masonry-card { will-change: transform, opacity; }
+
+        /* Admin FAB style */
+        .upload-fab { box-shadow: 0 12px 40px rgba(16,24,40,0.5); }
+
+        /* colorful animated gradient for the main heading */
+        .text-gradient {
+          background: linear-gradient(90deg,
+            #ff6b6b 0%,
+            #ff9f43 16%,
+            #ffd93d 32%,
+            #6beaa7 48%,
+            #7dd3fc 64%,
+            #a78bfa 80%,
+            #ff6b6b 100%);
+          background-size: 200% 200%;
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          color: transparent;
+          animation: gradientShift 6s linear infinite;
+          font-weight: 800;
+        }
+
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        /* make sure images are crisp on hover */
+        img.card-media { border-radius: 12px; display:block; }
+      `}</style>
     </Container>
   );
 };
